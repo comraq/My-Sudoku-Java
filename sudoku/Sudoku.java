@@ -105,14 +105,14 @@ public class Sudoku {
   private final void initUnitList() {
     int size = dimensions;
     for (int row = 0; row < rows.size(); ++row) {
-      unitList.add(new Unit().withSudoku(this).initialize(row, 1, 0, (int)Math.pow(dimensions, 2)));
+      unitList.add(new Unit().withSudoku(this).initialize(rows.subList(row, row+1), cols));
     }      
     for (int col = 0; col < cols.size(); ++col) {
-      unitList.add(new Unit().withSudoku(this).initialize(0, (int)Math.pow(dimensions, 2), col, 1));
+      unitList.add(new Unit().withSudoku(this).initialize(rows, cols.subList(col, col+1)));
     }
     for (int row = 0; row < size; ++row) {
       for (int col = 0; col < size; ++col) {
-        unitList.add(new Unit().withSudoku(this).initialize(row*dimensions, dimensions, col*dimensions, dimensions));
+        unitList.add(new Unit().withSudoku(this).initialize(rows.subList(row*dimensions, (row + 1)*dimensions), cols.subList(col*dimensions, (col+1)*dimensions)));
       }
     }
   }

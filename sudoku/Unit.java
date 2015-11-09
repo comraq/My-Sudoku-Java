@@ -8,15 +8,15 @@ public class Unit {
   private List<Cell> cells;
   private Sudoku sudoku;
   
-  public Unit initialize (int startRow, int numRows, int startCol, int numCols) {
+  public Unit initialize (List<Character> rows, List<Character> cols) {
     int size = sudoku.getDimensions();
     cells = new ArrayList<Cell>();
-    for (int row = startRow; row < (startRow+numRows); ++row) {
-      for (int col = startCol; col < (startCol+numCols); ++col) {
-        cells.add(sudoku.getCells().get(row*(int)Math.pow(size, 2) + col));        
+    for (char row : rows) {
+      for (char col : cols) {
+        cells.add(sudoku.getCells().get(sudoku.getRows().indexOf(row)*(int)Math.pow(size, 2) + sudoku.getCols().indexOf(col)));        
       }
     }
-    return this;
+    return this;    
   }
   
   public List<Cell> getCells() {
