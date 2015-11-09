@@ -9,13 +9,7 @@ public class Unit {
   private Sudoku sudoku;
   
   public Unit initialize (List<Character> rows, List<Character> cols) {
-    int size = sudoku.getDimensions();
-    cells = new ArrayList<Cell>();
-    for (char row : rows) {
-      for (char col : cols) {
-        cells.add(sudoku.getCells().get(sudoku.getRows().indexOf(row)*(int)Math.pow(size, 2) + sudoku.getCols().indexOf(col)));        
-      }
-    }
+    cells = sudoku.initCells(rows, cols, new ArrayList<Cell>(), sudoku.getCells());
     return this;    
   }
   

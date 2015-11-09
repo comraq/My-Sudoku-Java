@@ -8,18 +8,19 @@ public class Solver {
   private Sudoku sudoku;
   
   public List<Cell> parse(List<Cell> cells) throws Exception {
-    List<Cell> retCells = sudoku.initCells();
-    for (Cell cell : retCells) {
-      cell.setValues();
+    for (Cell cell : cells) {
+      if (cell.getValues().size() == 0) {
+        cell.setValues();
+      }
     }
     for (Cell cell : cells) {
       for (int digit : cell.getValues()) {
-        if (sudoku.getDigits().contains(digit) && !assign(retCells, cell, digit)) {
-          throw new Exception("Invalid Assignment in Solver.parse()!");
+        if (sudoku.getDigits().contains(digit) && !assign(cells, cell, digit)) {
+          throw new Exception("Invalid Assignment in Solver.parse()!"); 
         }
-      }
+      }  
     }
-    return retCells;
+    return cells;
   }
   
   public Solver stringToCellList(List<Cell> cells, String grid) {
@@ -30,7 +31,7 @@ public class Solver {
         s_val += c;
       } else if (c == ' ') {
         if (s_val != "") {
-          cells.get(cListIndex).setValues(Integer.parseInt(s_val));
+          cells.get(cListIndex).addToValues(Integer.parseInt(s_val));
         }
         s_val = "";
         ++cListIndex;
@@ -48,7 +49,7 @@ public class Solver {
         s_val += c;
       } else if (c == ' ') {
         if (s_val != "") {
-          cList.get(cListIndex).setValues(Integer.parseInt(s_val));
+          cList.get(cListIndex).addToValues(Integer.parseInt(s_val));
         }
         s_val = "";
         ++cListIndex;

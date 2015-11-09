@@ -54,10 +54,16 @@ public class Sudoku {
     }
     for (Unit unit : unitList) {
       for (Cell cell : unit.getCells()) {
-        System.out.printf(cell.getName()+" ");
+        System.out.printf(cell.getName()+cell.getValues()+"");
       }
       System.out.println("\nEnd of unit.");
     }
+    
+    Cell tempCell = unitList.get(0).getCells().get(0);
+    System.out.println("Cell: " + tempCell.getName() + " Digits: " + tempCell.getValues());
+    cells.get(0).setValues(1);
+    System.out.println("Cell: " + cells.get(0).getName() + " Digits: " + cells.get(0).getValues());
+    System.out.println(cells.get(0) == tempCell);
   }
 
   public int getDimensions() {
@@ -101,6 +107,15 @@ public class Sudoku {
     }  
     return retCells; 
   }
+  
+  public List<Cell> initCells(List<Character> rows, List<Character> cols, List<Cell> toCells, List<Cell> fromCells) {
+    for (char row : rows) {
+      for (char col : cols) {
+        toCells.add(fromCells.get(this.rows.indexOf(row)*(int)Math.pow(dimensions, 2) + this.cols.indexOf(col)));
+      }
+    }  
+    return toCells; 
+  }  
   
   private final void initUnitList() {
     int size = dimensions;

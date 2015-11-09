@@ -22,7 +22,12 @@ public class Cell {
     }   
   }
   
-  public void setValues(int value) {
+  public void setValues(int val) {
+    values.clear();
+    values.add(val);
+  }  
+  
+  public void addToValues(int value) {
     values.add(value);
   }
   
