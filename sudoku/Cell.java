@@ -9,12 +9,14 @@ public class Cell {
   private String name;
   private Sudoku sudoku;
   
-  public Cell initialize() {
-    int size = sudoku.getDimensions();
+  public Cell initialize(String name) {
     values = new ArrayList<Integer>();
-    for (int i = 0; i < (int)Math.pow(size, 2); i++) {
+    setName(name);
+    //Populating the values should belong in the Solver class
+    //int size = sudoku.getDimensions();
+    /*for (int i = 0; i < (int)Math.pow(size, 2); i++) {
       values.add(i + 1);
-    }
+    }*/
     return this;
   }
   

@@ -1,7 +1,7 @@
 package sudoku;
 
 import java.util.List;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -10,6 +10,7 @@ public class Sudoku {
   //Temporary constant, to be converted into private integer variable 
   private final int dimensions = 3;
   
+  private List<Integer> digits;
   private List<Character> rows, cols;
   private List<Cell> cells;
   private List<Unit> unitList;
@@ -24,26 +25,26 @@ public class Sudoku {
   private Sudoku initialize(){
     int size = getDimensions();
     
+    //Initializing the list of possible digits
+    digits = new ArrayList<Integer>();
+    for (int i = 0; i < (int)Math.pow(size, 2); i++) {
+      digits.add(i + 1);
+    }
+    
     //Initializing rows and cols
-    rows = new LinkedList<Character>();
-    cols = new LinkedList<Character>();
+    rows = new ArrayList<Character>();
+    cols = new ArrayList<Character>();
     for (int i = 97; i < (97 + (int)Math.pow(size, 2)); ++i) {
       rows.add((char) i);
       cols.add((char) i);
     }
     
     //Initializing the list of cells
-    cells = new LinkedList<Cell>();
-    for (char row : rows) {
-      for (char col : cols) {
-        cells.add(new Cell().withSudoku(this).initialize());
-        ((LinkedList<Cell>) cells).getLast().setName("" + row + col);
-      }
-    }
+    cells = initCells();
     assert cells.size() == (int)Math.pow(size, 4);
     
     //Initializing the list of units
-    unitList = new LinkedList<Unit>();
+    unitList = new ArrayList<Unit>();
     for (int row = 0; row < rows.size(); ++row) {
       unitList.add(new Unit().withSudoku(this).initialize(row, 1, 0, size*size));
     }      
@@ -60,7 +61,7 @@ public class Sudoku {
     //Initializing the mapping of each cell to its residing units
     unitMap = new HashMap<Cell, List<Unit>>();
     for (Cell cell : cells) {
-      unitMap.put(cell, new LinkedList<Unit>());
+      unitMap.put(cell, new ArrayList<Unit>());
       for (Unit unit : unitList) {
         if (unit.getCells().contains(cell)) {
           unitMap.get(cell).add(unit);
@@ -75,7 +76,7 @@ public class Sudoku {
     //Initializing the mapping of each cell to its peers
     peerMap = new HashMap<Cell, List<Cell>>();
     for (Cell cell : cells) {
-      peerMap.put(cell, new LinkedList<Cell>());
+      peerMap.put(cell, new ArrayList<Cell>());
       for (Unit u : unitMap.get(cell)) {
         for (Cell unitCell : u.getCells()) {
           if (unitCell != cell && !peerMap.get(cell).contains(unitCell)) {
@@ -90,6 +91,8 @@ public class Sudoku {
   }
   
   private void start() {
+    Solver solver = new Solver().withSudoku(this);
+    cells = solver.parse(cells);
     for (Cell cell : cells) {
       System.out.println("Square: " + cell.getName() + " " + cells.indexOf(cell) + " " + cell.getValues());
     }
@@ -101,8 +104,22 @@ public class Sudoku {
     }
   }
   
+  public List<Cell> initCells() {
+    List<Cell> retCells = new ArrayList<Cell>();
+    for (char row : rows) {
+      for (char col : cols) {
+        retCells.add(new Cell().withSudoku(this).initialize("" + row + col));
+      }
+    }  
+    return retCells; 
+  }
+  
   public int getDimensions() {
     return dimensions;
+  }
+  
+  public List<Integer> getDigits() {
+    return digits;
   }
   
   public List<Character> getRows() {
@@ -115,5 +132,17 @@ public class Sudoku {
   
   public List<Cell> getCells() {
     return cells;
+  }
+  
+  public List<Unit> getUnitList() {
+    return unitList;
+  }
+  
+  public Map<Cell, List<Unit>> getUnitMap() {
+    return unitMap;
+  }
+  
+  public Map<Cell, List<Cell>> getPeerMap() {
+    return peerMap;
   }
 }
