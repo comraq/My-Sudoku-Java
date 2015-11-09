@@ -12,12 +12,18 @@ public class Cell {
   public Cell initialize(String name) {
     values = new ArrayList<Integer>();
     setName(name);
-    //Populating the values should belong in the Solver class
-    //int size = sudoku.getDimensions();
-    /*for (int i = 0; i < (int)Math.pow(size, 2); i++) {
-      values.add(i + 1);
-    }*/
     return this;
+  }
+  
+  public void setValues() {
+    int size = sudoku.getDimensions();
+    for (int i = 0; i < (int)Math.pow(size, 2); i++) {
+      values.add(i + 1);
+    }   
+  }
+  
+  public void setValues(int value) {
+    values.add(value);
   }
   
   public List<Integer> getValues() {
