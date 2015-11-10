@@ -7,20 +7,33 @@ public class Solver {
   
   private Sudoku sudoku;
   
-  public List<Cell> parse(List<Cell> cells) throws Exception {
-    for (Cell cell : cells) {
-      if (cell.getValues().size() == 0) {
-        cell.setValues();
+  public Solver parse(List<Cell> cells) throws Exception {
+    List<Integer> assignList = new ArrayList<Integer>();
+    for (int i = 0; i < cells.size(); ++i) {
+      if (cells.get(i).getValues().size() == 0) {
+        cells.get(i).setValues();
+      } else {
+        assignList.add(i);
       }
     }
-    for (Cell cell : cells) {
-      for (int digit : cell.getValues()) {
-        if (sudoku.getDigits().contains(digit) && !assign(cells, cell, digit)) {
-          throw new Exception("Invalid Assignment in Solver.parse()!"); 
+    for (int cellIndex : assignList) {
+      for (int digit : cells.get(cellIndex).getValues()) {
+        if (sudoku.getDigits().contains(digit)) {
+          assign(cells, cells.get(cellIndex), digit);
+          //throw new Exception("Invalid Assignment in Solver.parse()!"); 
         }
       }  
     }
+    return this;
+  }
+  
+  private List<Cell> assign(List<Cell> cells, Cell cell, int digit) {
     return cells;
+  }
+  
+  public Solver withSudoku(Sudoku sudoku) {
+    this.sudoku = sudoku;
+    return this;
   }
   
   public Solver stringToCellList(List<Cell> cells, String grid) {
@@ -57,14 +70,4 @@ public class Solver {
     }
     return cList;
   }
-  
-  private Boolean assign(List<Cell> cells, Cell cell, int digit) {
-    return true;
-  }
-  
-  public Solver withSudoku(Sudoku sudoku) {
-    this.sudoku = sudoku;
-    return this;
-  }
-  
 }
