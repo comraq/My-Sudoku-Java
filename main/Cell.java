@@ -9,10 +9,10 @@ public class Cell implements Cloneable {
   private String name;
   private Sudoku sudoku;
   
-  public Cell initialize(String name) {
+  public Cell (Sudoku sudoku, String name) {
+    this.sudoku = sudoku;
     values = new ArrayList<Integer>();
-    setName(name);
-    return this;
+    this.name = name;
   }
   
   @Override
@@ -50,6 +50,7 @@ public class Cell implements Cloneable {
     this.name = name;
   }
   
+  @Deprecated
   public Cell withSudoku(Sudoku sudoku) {
     this.sudoku = sudoku;
     return this;

@@ -14,16 +14,15 @@ public class Sudoku {
   private final List<List<Integer>> unitList = new ArrayList<List<Integer>>();
   private final Map<Integer, List<List<Integer>>> unitMap = new HashMap<Integer, List<List<Integer>>>();
   private final Map<Integer, List<Integer>> peerMap = new HashMap<Integer, List<Integer>>();
-  private final Solver solver = new Solver();
-  private final MainUI ui = new MainUI();
+  private final Solver solver = new Solver(this);
+  private final MainUI ui = new MainUI(this);
   
   private List<Integer> squares;
   private Solution solution;
 
- 
   private String testGrid = "4 . . . . . 8 . 5 . 3 . . . . . . . . . . 7 . . . . . . 2 . . . . . 6 . . . . . 8 . 4 . . . . . . 1 . . . . . . . 6 . 3 . 7 . 5 . . 2 . . . . . 1 . 4 . . . . . .";
  
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) throws CloneNotSupportedException {
       new Sudoku().initialize().start();
   }
   
@@ -39,7 +38,7 @@ public class Sudoku {
 
     squares = initSquares(rows, cols);
     assert squares.size() == (int)Math.pow(dimensions, 4);
-    solution = new Solution().withSudoku(this).initialize();
+    solution = new Solution(this);
     assert solution.getCells().size() == (int)Math.pow(dimensions, 4);
     initUnitList();
     assert unitList.size() == (int)Math.pow(dimensions, 2)*3;
@@ -48,14 +47,14 @@ public class Sudoku {
     initPeerMap();
     assert peerMap.get(squares.get(50)).size() == 3*((int)Math.pow(dimensions, 2) - 1) - 2*(dimensions-1); //Cell chosen arbitrarily
     
-    solver.withSudoku(this);
-    ui.withSudoku(this);
     return this;
   }
   
-  private void start() throws Exception {
+  private void start() throws CloneNotSupportedException {
     solution.setCells(solver.stringToCellList(testGrid));
-    //solver.parse(solution);
+    solver.parse(solution);
+    solver.setVerbose(true);
+    solver.solve(solution);
     ui.display();
   }
 
@@ -95,11 +94,15 @@ public class Sudoku {
     return solution;
   }
   
+  public MainUI getUI() {
+    return ui;
+  }
+  
   public List<Cell> initCells() {
     List<Cell> retCells = new ArrayList<Cell>();
     for (char row : rows) {
       for (char col : cols) {
-        retCells.add(new Cell().withSudoku(this).initialize("" + row + col));
+        retCells.add(new Cell(this, "" + row + col));
       }
     }  
     return retCells; 

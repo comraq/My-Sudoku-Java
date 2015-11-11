@@ -8,16 +8,13 @@ public class Solution implements Cloneable{
   private List<Cell> cells;
   private Sudoku sudoku;
   private boolean contradiction;
+  private boolean solved;
   
-  public Solution initialize() {
+  public Solution (Sudoku sudoku) {
+    this.sudoku = sudoku;
     contradiction = false;
-    cells = new ArrayList<Cell>();
-    for (char row : sudoku.getRows()) {
-      for (char col : sudoku.getCols()) {
-        cells.add(new Cell().withSudoku(sudoku).initialize("" + row + col));
-      }
-    }  
-    return this; 
+    solved = false;
+    cells = sudoku.initCells();
   }
   
   @Override
@@ -39,6 +36,23 @@ public class Solution implements Cloneable{
     this.cells = cells;
   }
   
+  public void setContradiction(Boolean contradiction) {
+    this.contradiction = contradiction;
+  }
+  
+  public Boolean getContradiction() {
+    return contradiction;
+  }
+  
+  public void setSolved(Boolean solved) {
+    this.solved = solved;
+  }
+  
+  public Boolean getSolved() {
+    return solved;
+  }
+  
+  @Deprecated
   public Solution withSudoku(Sudoku sudoku) {
     this.sudoku = sudoku;
     return this;

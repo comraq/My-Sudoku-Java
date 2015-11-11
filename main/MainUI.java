@@ -1,11 +1,16 @@
 package main;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class MainUI {
 
   private Sudoku sudoku;
   private Solution solution;
+  
+  public MainUI (Sudoku sudoku) {
+    this.sudoku = sudoku;
+  }
   
   public void display() {
     solution = sudoku.getSolution();
@@ -39,7 +44,12 @@ public class MainUI {
       }
       System.out.println();
     }
-    
+    System.out.flush();
+    try {
+      TimeUnit.MILLISECONDS.sleep(200);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
   }
   
   public <T> String joinList(List<T> list, String s) {
@@ -53,6 +63,7 @@ public class MainUI {
     return str.substring(1);
   }
   
+  @Deprecated
   public MainUI withSudoku(Sudoku sudoku) {
     this.sudoku = sudoku;
     return this;
