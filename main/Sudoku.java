@@ -15,13 +15,15 @@ public class Sudoku {
   private final Map<Integer, List<List<Integer>>> unitMap = new HashMap<Integer, List<List<Integer>>>();
   private final Map<Integer, List<Integer>> peerMap = new HashMap<Integer, List<Integer>>();
   private final Solver solver = new Solver();
+  private final MainUI ui = new MainUI();
   
   private List<Integer> squares;
   private Solution solution;
+
  
   private String testGrid = "4 . . . . . 8 . 5 . 3 . . . . . . . . . . 7 . . . . . . 2 . . . . . 6 . . . . . 8 . 4 . . . . . . 1 . . . . . . . 6 . 3 . 7 . 5 . . 2 . . . . . 1 . 4 . . . . . .";
  
-  public static void main(String[] args) throws CloneNotSupportedException {
+  public static void main(String[] args) throws Exception {
       new Sudoku().initialize().start();
   }
   
@@ -47,23 +49,14 @@ public class Sudoku {
     assert peerMap.get(squares.get(50)).size() == 3*((int)Math.pow(dimensions, 2) - 1) - 2*(dimensions-1); //Cell chosen arbitrarily
     
     solver.withSudoku(this);
+    ui.withSudoku(this);
     return this;
   }
   
-  private void start() throws CloneNotSupportedException {
-    //solution.setCells(solver.stringToCellList(testGrid));
-    //solver.parse(values.getCells());
-   
-    List<Cell> vCells = solution.getCells();
-    for (int square : squares) {
-      System.out.println("Square: " + vCells.get(square).getName() + " " + square + " " + vCells.get(square).getValues());
-    } 
-    for (List<Integer> unit : unitList) {
-      for (int square : unit) {
-        System.out.printf(vCells.get(square).getName()+vCells.get(square).getValues()+"");
-      }
-      System.out.println("\nEnd of unit.");
-    }
+  private void start() throws Exception {
+    solution.setCells(solver.stringToCellList(testGrid));
+    //solver.parse(solution);
+    ui.display();
   }
 
   public int getDimensions() {

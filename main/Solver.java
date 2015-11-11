@@ -6,8 +6,10 @@ import java.util.ArrayList;
 public class Solver {
   
   private Sudoku sudoku;
+  private List<Cell> cells;
   
-  public Solver parse(List<Cell> cells) {
+  public Solver parse(Solution solution) throws Exception {
+    cells = solution.getCells();
     List<Integer> assignList = new ArrayList<Integer>();
     for (int i = 0; i < cells.size(); ++i) {
       if (cells.get(i).getValues().size() == 0) {
@@ -18,16 +20,28 @@ public class Solver {
     }
     for (int cellIndex : assignList) {
       for (int digit : cells.get(cellIndex).getValues()) {
-        if (sudoku.getDigits().contains(digit)) {
-          assign(cells, cells.get(cellIndex), digit);
+        if (sudoku.getDigits().contains(digit) && !assign(solution, cells.get(cellIndex), digit)) {
+          throw new Exception("Invalid Assignment in Solver.parse()!"); 
         }
       }  
     }
     return this;
   }
   
-  private List<Cell> assign(List<Cell> cells, Cell cell, int digit) {
-    return cells;
+  private boolean assign(Solution solution, Cell cell, Integer digit) {
+    cells = solution.getCells();
+    List<Integer> elimList = new ArrayList<Integer>(cell.getValues());
+    elimList.remove(digit);
+    for (int elimDigit : elimList) {
+      if (!eliminate(solution, cell, elimDigit)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  
+  private boolean eliminate (Solution solution, Cell cell, Integer digit) {
+    return false;
   }
   
   public Solver withSudoku(Sudoku sudoku) {
