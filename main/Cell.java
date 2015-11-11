@@ -24,6 +24,7 @@ public class Cell implements Cloneable {
   
   public void initValues() {
     int size = sudoku.getDimensions();
+    values.clear();
     for (int i = 0; i < (int)Math.pow(size, 2); i++) {
       values.add(i + 1);
     }   

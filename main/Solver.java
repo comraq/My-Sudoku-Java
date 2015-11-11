@@ -1,8 +1,10 @@
 package main;
 
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Map;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Solver {
   
@@ -16,57 +18,53 @@ public class Solver {
     generate = false;
   }
   
-  public Solver parse(Solution solution) {
+  public Solution parse(Solution solution) throws CloneNotSupportedException {
     List<Cell> cells = solution.getCells();
-    List<Integer> assignList = new ArrayList<Integer>();
+    Map<Integer, Integer> assignMap = new HashMap<Integer, Integer>();
     for (int i = 0; i < cells.size(); ++i) {
-      if (cells.get(i).getValues().size() == 0) {
-        cells.get(i).initValues();
-      } else {
-        assignList.add(i);
+      if (cells.get(i).getValues().size() == 1) {
+        assignMap.put(i, cells.get(i).getValues().get(0));
+      }
+      cells.get(i).initValues();
+    }
+    for (Map.Entry<Integer, Integer> entry : assignMap.entrySet()) {
+      if (sudoku.getDigits().contains(entry.getValue()) && assign(solution, entry.getKey(), entry.getValue()).getContradiction()) {
+        /*if (verbose) {
+          System.out.println("Invalid Assignment in Solver.parse()!");
+        }*/
+        return solution;
       }
     }
-    for (int cellIndex : assignList) {
-      for (int digit : cells.get(cellIndex).getValues()) {
-        if (sudoku.getDigits().contains(digit) && !assign(solution, cells.get(cellIndex), digit)) {
-          /*if (verbose) {
-            System.out.println("Invalid Assignment in Solver.parse()!");
-          }*/
-          return this;
-        }
-      }  
-    }
-    return this;
+    return solution;
   }
   
-  private boolean assign(Solution solution, Cell cell, Integer digit) {
-    List<Integer> elimList = new ArrayList<Integer>(cell.getValues());
+  private Solution assign(Solution solution, int square, Integer digit) {
+    List<Integer> elimList = new ArrayList<Integer>(solution.getCells().get(square).getValues());
     elimList.remove(digit);
     for (int elimDigit : elimList) {
-      if (!eliminate(solution, cell, elimDigit)) {
-        return false;
+      if (eliminate(solution, square, elimDigit).getContradiction()) { 
+        return solution;
       }
     }
-    return true;
+    return solution;
   }
   
-  private boolean eliminate (Solution solution, Cell cell, Integer digit) {
-    if (!cell.getValues().contains(digit)) {
-      return true;
-    }
-    int square = solution.getCells().indexOf(cell);
+  private Solution eliminate (Solution solution, int square, Integer digit) {
     List<Cell> cells = solution.getCells();
-    cell.getValues().remove(digit);
+    if (!cells.get(square).getValues().contains(digit)) {
+      return solution; //Indicating that digit d was already eliminated from the possible values of square s
+    }
+    cells.get(square).getValues().remove(digit);
     //Case 1) of Propagation
-    if (cell.getValues().isEmpty()) {
+    if (cells.get(square).getValues().isEmpty()) {
       solution.setContradiction(true);
-      return false; //This is a contradiction as we just removed the last value
-    } else if (cell.getValues().size() == 1) {
-      for (int remainingDigit : cell.getValues()) {
+      return solution; //This is a contradiction as we just removed the last value
+    } else if (cells.get(square).getValues().size() == 1) {
+      for (int remainingDigit : cells.get(square).getValues()) {
         for (int peerSquare : sudoku.getPeerMap().get(square)) {
-          if (!eliminate(solution, cells.get(peerSquare), remainingDigit)) {
+          if (eliminate(solution, peerSquare, remainingDigit).getContradiction()) {
             solution.setContradiction(true);
-            return false;
+            return solution;
           }
         }
       }
@@ -84,27 +82,35 @@ public class Solver {
       }
       if (places.isEmpty()) {
         solution.setContradiction(true);
-        return false; //This is a contradiction as there is no available place for this digit in its unit
+        return solution; //This is a contradiction as there is no available place for this digit in its unit
       } else if (places.size() == 1) {
         //Digit 'digit' only has one available place in its units, we will assign it there
-        if (!assign(solution, cells.get(places.get(0)), digit)) {
+        if (assign(solution, places.get(0), digit).getContradiction()) {
           solution.setContradiction(true);
-          return false;          
+          return solution;          
         }
       }  
     }
-    return true;
+    return solution;
   }
   
-  public boolean solve(Solution solution) throws CloneNotSupportedException {
+  public Solution solve(Solution solution) throws CloneNotSupportedException {
     if (solution.getContradiction()) {
-      return false;
+      return solution;
     }
-    if (solution.getSolved()) {
-      return true; //Solution is solved, we are done!
+    Boolean solved = true;
+    for (Cell cell : solution.getCells()) {
+      if (cell.getValues().size() != 1) {
+        solved = false;
+        break;
+      }
+    }
+    if (solved) {
+      solution.setSolved(true);
+      return solution; //Solution is solved, we are done!
     } else {
       if (verbose && !generate) {
-        sudoku.getUI().display();
+        sudoku.getUI().display(solution);
       }
       List<Cell> cells = solution.getCells();
       //Choosing an unfilled square s with the fewest possible values
@@ -112,8 +118,8 @@ public class Solver {
       int minValues = (int)Math.pow(sudoku.getDimensions(), 2);
       List<Integer> randSquares = new ArrayList<Integer>(sudoku.getSquares());
       while (!randSquares.isEmpty()) {
-        int randS = ThreadLocalRandom.current().nextInt(0, randSquares.size());
-        if (cells.get(randS).getValues().size() != 1) {
+        Integer randS = randSquares.get(ThreadLocalRandom.current().nextInt(0, randSquares.size()));
+        if (cells.get(randS).getValues().size() > 1) {
           if (cells.get(randS).getValues().size() == 2) {
             s = randS;
             break;
@@ -124,20 +130,23 @@ public class Solver {
         }
         randSquares.remove(randS);
       }
+      //System.out.println("s: " + cells.get(s).getName());
       List<Integer> randValues = new ArrayList<Integer>(cells.get(s).getValues());
       while (!randValues.isEmpty()) {
         Integer d = randValues.get(ThreadLocalRandom.current().nextInt(0, randValues.size()));
+        //System.out.println("Cell: " + cells.get(s).getName() + " Assigning: " + d);
         Solution solClone = solution.clone();
-        if (assign(solClone, cells.get(s), d)) {
-          if (solve(solClone)) {
-            solution = solClone;
-          } else {
-            randValues.remove(d);
-          }
+        solClone = solve(assign(solClone, s, d));
+        if (solClone.getSolved()) {
+          //System.out.println("No contradiction, solved is: " + solClone.getSolved());
+          return solClone;
+        } else {
+          randValues.remove(d);
         }
       }
     }
-    return true;
+    solution.setContradiction(true);
+    return solution;
   }
   
   public Solver stringToCellList(List<Cell> cells, String grid) {

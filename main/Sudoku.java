@@ -21,10 +21,8 @@ public class Sudoku {
   private Solution solution;
 
   private String testGrid = "4 . . . . . 8 . 5 . 3 . . . . . . . . . . 7 . . . . . . 2 . . . . . 6 . . . . . 8 . 4 . . . . . . 1 . . . . . . . 6 . 3 . 7 . 5 . . 2 . . . . . 1 . 4 . . . . . .";
- 
-  public static void main(String[] args) throws CloneNotSupportedException {
-      new Sudoku().initialize().start();
-  }
+  private String blank;
+  
   
   /** Initializing the private fields */
   public Sudoku initialize(){
@@ -47,14 +45,17 @@ public class Sudoku {
     initPeerMap();
     assert peerMap.get(squares.get(50)).size() == 3*((int)Math.pow(dimensions, 2) - 1) - 2*(dimensions-1); //Cell chosen arbitrarily
     
+    for (blank = "."; blank.length() < (int)Math.pow(dimensions, 4); blank += " .") {
+      //Initializing the blank string/grid
+    }
     return this;
   }
   
-  private void start() throws CloneNotSupportedException {
-    solution.setCells(solver.stringToCellList(testGrid));
+  public void start() throws CloneNotSupportedException {
+    solution.setCells(solver.stringToCellList(blank));
     solver.parse(solution);
-    solver.setVerbose(true);
-    solver.solve(solution);
+    //solver.setVerbose(true);
+    solution = solver.solve(solution);
     ui.display();
   }
 

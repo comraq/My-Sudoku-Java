@@ -6,14 +6,24 @@ import java.util.concurrent.TimeUnit;
 public class MainUI {
 
   private Sudoku sudoku;
-  private Solution solution;
+  
+  public static void main(String[] args) throws CloneNotSupportedException {
+    new Sudoku().initialize().start();
+  }
   
   public MainUI (Sudoku sudoku) {
     this.sudoku = sudoku;
   }
   
   public void display() {
-    solution = sudoku.getSolution();
+    output(sudoku.getSolution());
+  }
+  
+  public void display(Solution solution) {
+    output(solution);
+  }
+  
+  public void output(Solution solution) {
     int dimension = sudoku.getDimensions();
     int width = 0;
     for (Cell cell : solution.getCells()) {
@@ -40,10 +50,15 @@ public class MainUI {
         if ((c != 0) && (c%dimension == 0)) {
           System.out.print('|');
         }
-        System.out.print("(" + joinList(solution.getCells().get(r*(int)Math.pow(dimension, 2)+ c).getValues(), " ") + ") ");
+        String valStr = joinList(solution.getCells().get(r*(int)Math.pow(dimension, 2)+ c).getValues(), " ");
+        System.out.print("(" + valStr + ")");
+        for (int i = 0; i < (width - 2 - valStr.length()); ++i) {
+          System.out.print(' ');
+        }
       }
       System.out.println();
     }
+    System.out.println();
     System.out.flush();
     try {
       TimeUnit.MILLISECONDS.sleep(200);

@@ -27,6 +27,7 @@ public class FundamentalTest {
   @Test
   public void cloneTest() throws CloneNotSupportedException {
     solution.getCells().get(0).setValue(7);
+    solution.setSolved(true);
     Solution solutionClone = solution.clone();
     Cell cell1 = solution.getCells().get(0);
     Cell cell2 = solutionClone.getCells().get(0);
@@ -34,6 +35,11 @@ public class FundamentalTest {
     assertNotSame(cell1, cell2);
     assertNotSame(cell1.getValues(), cell2.getValues());
     assertEquals(cell1.getValues().get(0), cell2.getValues().get(0));
+    assertEquals(solution.getSolved(), solutionClone.getSolved());
+    cell1.setValue(1);
+    solution.setSolved(!solutionClone.getSolved());
+    assertNotSame(cell1.getValues().get(0), cell2.getValues().get(0));
+    assertNotSame(solution.getSolved(), solutionClone.getSolved());
   }
   
 }
