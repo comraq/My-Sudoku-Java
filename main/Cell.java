@@ -1,9 +1,9 @@
-package sudoku;
+package main;
 
 import java.util.List;
 import java.util.ArrayList;
 
-public class Cell {
+public class Cell implements Cloneable {
 
   private List<Integer> values;
   private String name;
@@ -15,21 +15,28 @@ public class Cell {
     return this;
   }
   
-  public void setValues() {
+  @Override
+  protected Cell clone() throws CloneNotSupportedException {
+    Cell cloned = (Cell)super.clone();
+    cloned.setValues(new ArrayList<Integer>(values));
+    return cloned;
+  }
+  
+  public void initValues() {
     int size = sudoku.getDimensions();
     for (int i = 0; i < (int)Math.pow(size, 2); i++) {
       values.add(i + 1);
     }   
   }
   
+  public void setValues(List<Integer> values) {
+    this.values = values; 
+  }
+  
   public void setValue(int val) {
     values.clear();
     values.add(val);
   }  
-  
-  public void addToValues(int value) {
-    values.add(value);
-  }
   
   public List<Integer> getValues() {
     return values;
