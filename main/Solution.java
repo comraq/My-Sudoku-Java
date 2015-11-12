@@ -6,12 +6,18 @@ import java.util.List;
 public class Solution implements Cloneable{
   
   private List<Cell> cells;
+  private Sudoku sudoku;
   private boolean contradiction;
   private boolean solved;
+  private boolean multi;
+  private int multiSquare;
+  private int multiVal;
   
   public Solution (Sudoku sudoku) {
+    this.sudoku = sudoku;
     contradiction = false;
     solved = false;
+    multi = false;
     cells = sudoku.initCells();
   }
   
@@ -48,5 +54,27 @@ public class Solution implements Cloneable{
   
   public Boolean getSolved() {
     return solved;
+  }
+  
+  public void setMulti(Boolean multi, int multiSquare, int multiVal) {
+    this.multi = multi;
+    this.multiSquare = multiSquare;
+    this.multiVal = multiVal;
+  }
+  
+  public void resetMulti() {
+    multi = false;
+  }
+  
+  public Boolean getMulti() {
+    return multi;
+  }
+  
+  public int getMultiSquare() {
+    return multiSquare;
+  }
+  
+  public int getMultiVal() {
+    return multiVal;
   }
 }

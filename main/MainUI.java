@@ -60,6 +60,10 @@ public class MainUI {
     }
     System.out.println();
     System.out.flush();
+    pause();
+  }
+  
+  private void pause() {
     try {
       TimeUnit.MILLISECONDS.sleep(200);
     } catch (InterruptedException e) {

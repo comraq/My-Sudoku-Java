@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 public class Sudoku {
   
-  private final int dimensions = 3; //Temporary constant, to be converted into private integer variable 
+  private final int dimensions = 4; //Temporary constant, to be converted into private integer variable 
   private final List<Integer> digits = new ArrayList<Integer>();
   private final List<Character> rows = new ArrayList<Character>();
   private final List<Character> cols = new ArrayList<Character>(); 
@@ -21,6 +21,7 @@ public class Sudoku {
   private Solution solution;
 
   private String testGrid = "4 . . . . . 8 . 5 . 3 . . . . . . . . . . 7 . . . . . . 2 . . . . . 6 . . . . . 8 . 4 . . . . . . 1 . . . . . . . 6 . 3 . 7 . 5 . . 2 . . . . . 1 . 4 . . . . . .";
+  private String multiGrid = ". . . . . 6 . . . . 5 9 . . . . . 8 2 . . . . 8 . . . . 4 5 . . . . . . . . 3 . . . . . . . . 6 . . 3 . 5 4 . . . 3 2 5 . . 6 . . . . . . . . . . . . . . . . . .";
   private String blank;
   
   
@@ -52,11 +53,20 @@ public class Sudoku {
   }
   
   public void start() throws CloneNotSupportedException {
-    solution.setCells(solver.stringToCellList(blank));
-    solver.parse(solution);
-    //solver.setVerbose(true);
-    solution = solver.solve(solution);
+    //solution.setCells(solver.stringToCells(blank));
+    //solution.setCells(solver.stringToCells(testGrid));
+    //solution.setCells(solver.stringToCells(multiGrid));
+
+    solver.setVerbose(true);
+    solution = solver.generate('e');
     ui.display();
+
+    solver.setVerbose(false);
+    //solution = solver.solve();
+    solution = solver.checkSolve();
+    if (!solution.getMulti()) {
+      ui.display();
+    }    
   }
 
   public int getDimensions() {
@@ -97,6 +107,10 @@ public class Sudoku {
   
   public MainUI getUI() {
     return ui;
+  }
+  
+  public String getBlank() {
+    return blank;
   }
   
   public List<Cell> initCells() {
