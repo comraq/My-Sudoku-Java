@@ -31,15 +31,22 @@ public class FundamentalTest {
     Solution solutionClone = solution.clone();
     Cell cell1 = solution.getCells().get(0);
     Cell cell2 = solutionClone.getCells().get(0);
+    
     assertNotSame(solutionClone, solution);
     assertNotSame(cell1, cell2);
     assertNotSame(cell1.getValues(), cell2.getValues());
     assertEquals(cell1.getValues().get(0), cell2.getValues().get(0));
     assertEquals(solution.getSolved(), solutionClone.getSolved());
+    assertEquals(solution.getMultiSquare(), solutionClone.getMultiSquare());
+    assertEquals(solution.getMultiVal(), solutionClone.getMultiVal());
+    
     cell1.setValue(1);
     solution.setSolved(!solutionClone.getSolved());
+    solution.setMulti(!solutionClone.getMulti(), 2, 2);
+    
     assertNotSame(cell1.getValues().get(0), cell2.getValues().get(0));
     assertNotSame(solution.getSolved(), solutionClone.getSolved());
+    assertNotSame(solution.getMultiSquare(), solutionClone.getMultiSquare());
   }
   
 }

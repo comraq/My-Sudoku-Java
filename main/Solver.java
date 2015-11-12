@@ -34,10 +34,6 @@ public class Solver {
     return solve(parse(solution), 'c');
   }
   
-  //private Solution genSolve(Solution solution) throws CloneNotSupportedException {
-  //  return solve(parse(solution), 'g');  
-  //}
-  
   private Solution parse(Solution solution) throws CloneNotSupportedException {
     List<Cell> cells = solution.getCells();
     Map<Integer, Integer> assignMap = new HashMap<Integer, Integer>();
@@ -132,9 +128,7 @@ public class Solver {
       if (verbose && !generating) {
         sudoku.getUI().display(solution);
       }
-      //Solution multiSolution = new Solution(sudoku);
       Solution multiSolution = null;
-      Boolean multiSol = false;
       List<Cell> cells = solution.getCells();
       //Choosing an unfilled square s with the fewest possible values
       int s = 0;
@@ -166,7 +160,7 @@ public class Solver {
               System.out.format("Found a solution! Cell = %s, Digit = %d\n", cells.get(s).getName(), d);
               sudoku.getUI().display(solClone);
             }
-            if (multiSol) {//if (multiSolution.getSolved()) {
+            if (multiSolution != null && multiSolution.getSolved()) {
               if (!generating) {
                 System.out.println("Multiple solutions found!");
                 sudoku.getUI().display(solClone);
@@ -176,7 +170,6 @@ public class Solver {
               return solClone;
             } else {
               multiSolution = solClone;
-              multiSol = true;
             }
           }
         } 
@@ -203,7 +196,7 @@ public class Solver {
       minStart = (int)Math.pow(sudoku.getDimensions(), 4)/3;
     } 
     if (sudoku.getDimensions() > 3) {
-      minStart = (int)Math.pow(sudoku.getDimensions(), 4)*5/12;
+      minStart = (int)Math.pow(sudoku.getDimensions(), 4)*5/12; //For large sudokus, given too few starting squares are difficult to check for multiple solutions
     }
     if (verbose) {
       System.out.println("Generating a unique sudoku board...");

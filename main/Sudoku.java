@@ -58,7 +58,7 @@ public class Sudoku {
     //solution.setCells(solver.stringToCells(multiGrid));
 
     solver.setVerbose(true);
-    solution = solver.generate('e');
+    solution = solver.generate('n');
     ui.display();
 
     solver.setVerbose(false);
