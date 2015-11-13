@@ -7,10 +7,6 @@ public class MainUI {
 
   private Sudoku sudoku;
   
-  public static void main(String[] args) throws CloneNotSupportedException {
-    new Sudoku().initialize().start();
-  }
-  
   public MainUI (Sudoku sudoku) {
     this.sudoku = sudoku;
   }
@@ -25,7 +21,7 @@ public class MainUI {
   
   public void output(Solution solution) {
     int dimension = sudoku.getDimensions();
-    int width = 0;
+    int width = 1;
     for (Cell cell : solution.getCells()) {
       if (cell.getValues().size() > width) {
         width = cell.getValues().size();

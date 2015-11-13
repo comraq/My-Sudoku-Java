@@ -1,22 +1,25 @@
 package main;
 
 import java.util.List;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
 public class Sudoku {
   
-  private final int dimensions = 4; //Temporary constant, to be converted into private integer variable 
-  private final List<Integer> digits = new ArrayList<Integer>();
-  private final List<Character> rows = new ArrayList<Character>();
-  private final List<Character> cols = new ArrayList<Character>(); 
-  private final List<List<Integer>> unitList = new ArrayList<List<Integer>>();
-  private final Map<Integer, List<List<Integer>>> unitMap = new HashMap<Integer, List<List<Integer>>>();
-  private final Map<Integer, List<Integer>> peerMap = new HashMap<Integer, List<Integer>>();
-  private final Solver solver = new Solver(this);
-  private final MainUI ui = new MainUI(this);
+  private final List<Integer> digits;
+  private final List<Character> rows;
+  private final List<Character> cols; 
+  private final List<List<Integer>> unitList;
+  private final Map<Integer, List<List<Integer>>> unitMap;
+  private final Map<Integer, List<Integer>> peerMap;
+  private final Solver solver;
+  private final MainUI ui;
   
+  private int dimensions;
   private List<Integer> squares;
   private Solution solution;
 
@@ -24,9 +27,25 @@ public class Sudoku {
   private String multiGrid = ". . . . . 6 . . . . 5 9 . . . . . 8 2 . . . . 8 . . . . 4 5 . . . . . . . . 3 . . . . . . . . 6 . . 3 . 5 4 . . . 3 2 5 . . 6 . . . . . . . . . . . . . . . . . .";
   private String blank;
   
+  public static void main(String[] args) throws CloneNotSupportedException{
+    new Sudoku().start();
+  }
   
-  /** Initializing the private fields */
-  public Sudoku initialize(){
+  public Sudoku() {
+    digits = new ArrayList<Integer>();
+    rows = new ArrayList<Character>();
+    cols = new ArrayList<Character>(); 
+    unitList = new ArrayList<List<Integer>>();
+    unitMap = new HashMap<Integer, List<List<Integer>>>();
+    peerMap = new HashMap<Integer, List<Integer>>();
+    solver = new Solver(this);
+    ui = new MainUI(this);
+  }
+  
+  public Sudoku initialize(int dimensions){
+    //Initializing the private fields
+    
+    this.dimensions = dimensions; //Default is 3 unless later changed
     for (int i = 0; i < (int)Math.pow(dimensions, 2); i++) {
       digits.add(i + 1); //Initializing the list of possible digits
     }
@@ -34,7 +53,7 @@ public class Sudoku {
       rows.add((char) i); //Initializing rows and cols
       cols.add((char) i);
     }
-
+    
     squares = initSquares(rows, cols);
     assert squares.size() == (int)Math.pow(dimensions, 4);
     solution = new Solution(this);
@@ -53,20 +72,64 @@ public class Sudoku {
   }
   
   public void start() throws CloneNotSupportedException {
-    //solution.setCells(solver.stringToCells(blank));
-    //solution.setCells(solver.stringToCells(testGrid));
-    //solution.setCells(solver.stringToCells(multiGrid));
-
-    solver.setVerbose(true);
-    solution = solver.generate('n');
-    ui.display();
-
-    solver.setVerbose(false);
-    //solution = solver.solve();
-    solution = solver.checkSolve();
-    if (!solution.getMulti()) {
-      ui.display();
-    }    
+    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+    System.out.println("Enter q at any time to quit...");
+    while (true) {
+      try {
+        System.out.print("Please enter size: ");
+        String input = reader.readLine();
+        if (input.contains("q")) {
+          return;
+        }
+        initialize(Integer.parseInt(input));
+        System.out.println("Please select puzzle (ex: e = easy, n = normal, h = hard, or nothing for an empty puzzle): ");
+        if (input.contains("q")) {
+          return;
+        } else if (input.contains("d")) {
+          solver.setVerbose(true);
+        }
+        if (input.contains("e")) {
+          solution = solver.generate('e');
+        } else if (input.contains("n")) {
+          solution = solver.generate('n');  
+        } else if (input.contains("h")) {
+          solution = solver.generate('h');
+        } else if (input.contains("m")) {
+          solution = solver.generate('m');
+        } else if (input.contains("1")) {
+          solution.setCells(solver.stringToCells(testGrid));
+        } else if (input.contains("2")) {
+          solution.setCells(solver.stringToCells(multiGrid));
+        } else {
+          solution.setCells(solver.stringToCells(blank));          
+        }
+        ui.display();
+        solver.setVerbose(false);
+        System.out.println("Press Enter to solve puzzle or s to select another Sudoku: ");
+        System.out.println("Please select options:\n"
+                         + "Include flags? (optional)\n"
+                         + "d = display steps\n"
+                         + "c = check solve\n"
+                         + "f = fast solve");
+        input = reader.readLine();
+        if (input.contains("q")) {
+          return;
+        } else if (!input.contains("s")) {
+          if (input.contains("d")) {
+            solver.setVerbose(true);
+          }
+          if (input.contains("c")) {
+            solution = solver.checkSolve();
+          } else {
+            solution = solver.solve();
+          }
+          ui.display();
+          return;
+        }
+      } catch (IOException e) {
+        System.out.println("Error reading input.");
+      }
+    }  
   }
 
   public int getDimensions() {

@@ -15,7 +15,7 @@ public class FundamentalTest {
   
   @Before
   public void setUp() {
-    sudoku = new Sudoku().initialize();
+    sudoku = new Sudoku().initialize(3);
     solution = sudoku.getSolution();
   }
   

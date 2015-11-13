@@ -163,7 +163,7 @@ public class Solver {
             if (multiSolution != null && multiSolution.getSolved()) {
               if (!generating) {
                 System.out.println("Multiple solutions found!");
-                sudoku.getUI().display(solClone);
+                //sudoku.getUI().display(solClone);
                 sudoku.getUI().display(multiSolution);
               }
               solClone.setMulti(true, s, d);
