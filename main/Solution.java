@@ -40,19 +40,19 @@ public class Solution implements Cloneable{
     this.cells = cells;
   }
   
-  public void setContradiction(Boolean contradiction) {
+  public void setContradiction(boolean contradiction) {
     this.contradiction = contradiction;
   }
   
-  public Boolean getContradiction() {
+  public boolean getContradiction() {
     return contradiction;
   }
   
-  public void setSolved(Boolean solved) {
+  public void setSolved(boolean solved) {
     this.solved = solved;
   }
   
-  public Boolean getSolved() {
+  public boolean getSolved() {
     return solved;
   }
 

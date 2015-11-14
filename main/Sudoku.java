@@ -7,8 +7,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Map;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-
 import java.util.HashMap;
 
 public class Sudoku {
@@ -95,6 +93,7 @@ public class Sudoku {
         } else if (input.contains("v")) {
           solver.setVerbose(true);
         }
+        
         if (input.contains("e")) {
           solution = solver.generate('e');
         } else if (input.contains("n")) {
@@ -112,7 +111,6 @@ public class Sudoku {
         }
         ui.display();
         solver.setVerbose(false);
-        //System.out.format("Dimensions: %d cells.size(): %d values.size(): %d\n", dimensions, solution.getCells().size(), solution.getCells().get(0).getValues().size());
         System.out.println("Press Enter to solve puzzle or s to select another Sudoku: ");
         System.out.println("Please select options:\n"
                          + "Include flags? (optional)\n"
@@ -125,21 +123,21 @@ public class Sudoku {
         } else if (!input.contains("s")) {
           if (input.contains("v")) {
             solver.setVerbose(true);
-          }
+          } /*else if (input.contains("d")) {
+            solver.setDebug(true);
+          }*/
           if (input.contains("c")) {
             solution = solver.checkSolve();
           } else {
             solution = solver.solve();
           }
           ui.display();
-          System.out.println("MultiSolution found? " + solution.getSolved());
           break;
         }
       } catch (IOException e) {
         System.out.println("Error reading input.");
       }
     } 
-    ui.printTree("", solver.getRoot());
   }
 
   public int getDimensions() {
