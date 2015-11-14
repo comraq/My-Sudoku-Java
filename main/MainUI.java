@@ -56,7 +56,7 @@ public class MainUI {
     }
     System.out.println();
     System.out.flush();
-    pause();
+    //pause();
   }
   
   private void pause() {

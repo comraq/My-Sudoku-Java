@@ -46,9 +46,12 @@ public class Sudoku {
     //Initializing the private fields
     
     this.dimensions = dimensions; //Default is 3 unless later changed
+    digits.clear();
     for (int i = 0; i < (int)Math.pow(dimensions, 2); i++) {
       digits.add(i + 1); //Initializing the list of possible digits
     }
+    rows.clear();
+    cols.clear();
     for (int i = 97; i < (97 + (int)Math.pow(dimensions, 2)); ++i) {
       rows.add((char) i); //Initializing rows and cols
       cols.add((char) i);
@@ -83,6 +86,7 @@ public class Sudoku {
         }
         initialize(Integer.parseInt(input));
         System.out.println("Please select puzzle (ex: e = easy, n = normal, h = hard, or nothing for an empty puzzle): ");
+        input = reader.readLine();
         if (input.contains("q")) {
           return;
         } else if (input.contains("d")) {
@@ -105,6 +109,7 @@ public class Sudoku {
         }
         ui.display();
         solver.setVerbose(false);
+        //System.out.format("Dimensions: %d cells.size(): %d values.size(): %d\n", dimensions, solution.getCells().size(), solution.getCells().get(0).getValues().size());
         System.out.println("Press Enter to solve puzzle or s to select another Sudoku: ");
         System.out.println("Please select options:\n"
                          + "Include flags? (optional)\n"
@@ -195,7 +200,7 @@ public class Sudoku {
     return toCells; 
   }  
   
-  public List<Integer> initSquares(List<Character> rows, List<Character> cols) {
+  private List<Integer> initSquares(List<Character> rows, List<Character> cols) {
     List<Integer> retSquares = new ArrayList<Integer>();
     for (char row : rows) {
       for (char col : cols) {
@@ -206,21 +211,22 @@ public class Sudoku {
   }
 
   private final void initUnitList() {
-    int size = dimensions;
+    unitList.clear();
     for (int row = 0; row < rows.size(); ++row) {
       unitList.add(initSquares(rows.subList(row, row+1), cols));
     }      
     for (int col = 0; col < cols.size(); ++col) {
       unitList.add(initSquares(rows, cols.subList(col, col+1)));
     }
-    for (int row = 0; row < size; ++row) {
-      for (int col = 0; col < size; ++col) {
+    for (int row = 0; row < dimensions; ++row) {
+      for (int col = 0; col < dimensions; ++col) {
         unitList.add(initSquares(rows.subList(row*dimensions, (row + 1)*dimensions), cols.subList(col*dimensions, (col+1)*dimensions)));
       }
     }
   }
   
   private final void initUnitMap() {
+    unitMap.clear();
     for (int square : squares) {
       unitMap.put(square, new ArrayList<List<Integer>>());
       for (List<Integer> unit : unitList) {
@@ -235,6 +241,7 @@ public class Sudoku {
   }
   
   private final void initPeerMap() {
+    peerMap.clear();
     for (int square : squares) {
       peerMap.put(square, new ArrayList<Integer>());
       for (List<Integer> unit : unitMap.get(square)) {

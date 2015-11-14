@@ -9,7 +9,6 @@ public class Solution implements Cloneable{
   private Sudoku sudoku;
   private boolean contradiction;
   private boolean solved;
-  private boolean multi;
   private int multiSquare;
   private int multiVal;
   
@@ -17,8 +16,8 @@ public class Solution implements Cloneable{
     this.sudoku = sudoku;
     contradiction = false;
     solved = false;
-    multi = false;
     cells = sudoku.initCells();
+    initMulti();
   }
   
   @Override
@@ -55,19 +54,15 @@ public class Solution implements Cloneable{
   public Boolean getSolved() {
     return solved;
   }
-  
-  public void setMulti(Boolean multi, int multiSquare, int multiVal) {
-    this.multi = multi;
+
+  public void setMulti(int multiSquare, int multiVal) {
     this.multiSquare = multiSquare;
     this.multiVal = multiVal;
   }
   
-  public void resetMulti() {
-    multi = false;
-  }
-  
-  public Boolean getMulti() {
-    return multi;
+  public void initMulti() {
+    multiSquare = 0;
+    multiVal = 0;
   }
   
   public int getMultiSquare() {

@@ -11,9 +11,11 @@ public class Solver {
   private Sudoku sudoku;
   private boolean generating;
   private boolean verbose;
+  private Solution multiSolution;
   
   public Solver(Sudoku sudoku) {
     this.sudoku = sudoku;
+    multiSolution = null;
     verbose = false;
     generating = false;
   }
@@ -31,6 +33,7 @@ public class Solver {
   }
   
   public Solution checkSolve(Solution solution) throws CloneNotSupportedException {
+    multiSolution = null;
     return solve(parse(solution), 'c');
   }
   
@@ -122,13 +125,13 @@ public class Solver {
       }
     }
     if (solved) {
-      solution.setSolved(true);
+      //solution.setSolved(true);
       return solution; //Solution is solved, we are done!
     } else {
       if (verbose && !generating) {
         sudoku.getUI().display(solution);
       }
-      Solution multiSolution = null;
+      //Solution multiSolution = null;
       List<Cell> cells = solution.getCells();
       //Choosing an unfilled square s with the fewest possible values
       int s = 0;
@@ -150,32 +153,33 @@ public class Solver {
       List<Integer> randValues = new ArrayList<Integer>(cells.get(s).getValues());
       while (!randValues.isEmpty()) {
         Integer d = randValues.get(ThreadLocalRandom.current().nextInt(0, randValues.size()));
-        Solution solClone = solution.clone();
-        solClone = solve(assign(solClone, s, d), solveType);
-        if (solClone.getSolved()) {
-          if (solveType == 'f' || solClone.getMulti()) {
+        Solution solClone = solve(assign(solution.clone(), s, d), solveType);
+        if (!solClone.getContradiction()) {
+          //System.out.format("Trying square '%s' and digit '%d': %s\n", cells.get(s).getName(), d, true);
+          if (solveType == 'f' || solClone.getMultiVal() != 0) {
             return solClone;
           } else {
             if (verbose && !generating) {
               System.out.format("Found a solution! Cell = %s, Digit = %d\n", cells.get(s).getName(), d);
               sudoku.getUI().display(solClone);
             }
-            if (multiSolution != null && multiSolution.getSolved()) {
+            if (solution.getSolved()) {
               if (!generating) {
                 System.out.println("Multiple solutions found!");
-                //sudoku.getUI().display(solClone);
                 sudoku.getUI().display(multiSolution);
               }
-              solClone.setMulti(true, s, d);
+              solClone.setMulti(s, d);
               return solClone;
             } else {
+              solution.setSolved(true);
               multiSolution = solClone;
             }
           }
-        } 
+        }
+        //System.out.format("Trying square '%s' and digit '%d': %s\n", cells.get(s).getName(), d, false);
         randValues.remove(d);
       }
-      if (multiSolution != null && multiSolution.getSolved()) {
+      if (multiSolution != null) {
         return multiSolution;
       }
     }
@@ -195,9 +199,9 @@ public class Solver {
     } else {
       minStart = (int)Math.pow(sudoku.getDimensions(), 4)/3;
     } 
-    if (sudoku.getDimensions() > 3) {
-      minStart = (int)Math.pow(sudoku.getDimensions(), 4)*5/12; //For large sudokus, given too few starting squares are difficult to check for multiple solutions
-    }
+    //if (sudoku.getDimensions() > 3) {
+    //  minStart = (int)Math.pow(sudoku.getDimensions(), 4)*5/12; //For large sudokus, given too few starting squares are difficult to check for multiple solutions
+    //}
     if (verbose) {
       System.out.println("Generating a unique sudoku board...");
       System.out.flush();
@@ -220,18 +224,18 @@ public class Solver {
       System.out.flush();
     }
     solution.setSolved(false);
-    solution.resetMulti();
+    solution.initMulti();
     
     //Check whether the generated Sudoku yields a unique solution, if not, add the square responsible for multiple solutions
     int addedS = 0;
     if (diff != 'm') {
-      Solution multiSolution;
+      Solution tempSolution;
       do {
-        multiSolution = checkSolve(solution.clone());
-        if (multiSolution.getMulti()) {
-          solution.getCells().get(multiSolution.getMultiSquare()).setValue(multiSolution.getMultiVal());
+        tempSolution = checkSolve(solution.clone());
+        if (tempSolution.getSolved()) {
+          solution.getCells().get(tempSolution.getMultiSquare()).setValue(tempSolution.getMultiVal());
           if (verbose) {
-            System.out.format("Adding %d to square %s.\n", multiSolution.getMultiVal(), solution.getCells().get(multiSolution.getMultiSquare()).getName());
+            System.out.format("Adding %d to square %s.\n", tempSolution.getMultiVal(), solution.getCells().get(tempSolution.getMultiSquare()).getName());
             System.out.flush();
           }
           ++addedS;
@@ -242,7 +246,7 @@ public class Solver {
           }
           break;
         }
-      } while (multiSolution.getMulti());
+      } while (tempSolution.getSolved());
     }
     if (verbose) {
       System.out.format("Generated sudoku with %d number of given squares.\n", (addedS + minStart));

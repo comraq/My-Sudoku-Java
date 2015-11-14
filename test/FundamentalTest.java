@@ -42,7 +42,7 @@ public class FundamentalTest {
     
     cell1.setValue(1);
     solution.setSolved(!solutionClone.getSolved());
-    solution.setMulti(!solutionClone.getMulti(), 2, 2);
+    solution.setMulti(2, 2);
     
     assertNotSame(cell1.getValues().get(0), cell2.getValues().get(0));
     assertNotSame(solution.getSolved(), solutionClone.getSolved());
