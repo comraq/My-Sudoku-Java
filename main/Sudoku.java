@@ -173,12 +173,22 @@ public class Sudoku {
     return solution;
   }
   
+  public Solver getSolver() {
+    return solver;
+  }
+  
   public MainUI getUI() {
     return ui;
   }
   
-  public String getBlank() {
-    return blank;
+  public String getGrid(String grid) {
+    if (grid == "test") {
+      return testGrid;
+    } else if (grid == "multi") {
+      return multiGrid;
+    } else {
+      return blank;
+    }
   }
   
   public List<Cell> initCells() {

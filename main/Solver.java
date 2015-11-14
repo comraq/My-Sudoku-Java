@@ -125,18 +125,19 @@ public class Solver {
       }
     }
     if (solved) {
-      //solution.setSolved(true);
       return solution; //Solution is solved, we are done!
     } else {
       if (verbose && !generating) {
         sudoku.getUI().display(solution);
       }
-      //Solution multiSolution = null;
       List<Cell> cells = solution.getCells();
       //Choosing an unfilled square s with the fewest possible values
       int s = 0;
       int minValues = (int)Math.pow(sudoku.getDimensions(), 2);
+      
       List<Integer> randSquares = new ArrayList<Integer>(sudoku.getSquares());
+      //List<Integer> randSquares = new ArrayList<Integer>(purgeSquares(cells));
+      //System.out.println("Size of randSquares: " + randSquares.size());
       while (!randSquares.isEmpty()) {
         Integer randS = randSquares.get(ThreadLocalRandom.current().nextInt(0, randSquares.size()));
         if (cells.get(randS).getValues().size() > 1) {
@@ -147,16 +148,15 @@ public class Solver {
             minValues = cells.get(randS).getValues().size();
             s = randS;
           } 
-        }
-        randSquares.remove(randS);
+        } 
+        randSquares.remove(randS); //randS needs to be an Integer object and not an int index or else this remove statement will remove the wrong element
       }
       List<Integer> randValues = new ArrayList<Integer>(cells.get(s).getValues());
       while (!randValues.isEmpty()) {
         Integer d = randValues.get(ThreadLocalRandom.current().nextInt(0, randValues.size()));
         Solution solClone = solve(assign(solution.clone(), s, d), solveType);
         if (!solClone.getContradiction()) {
-          //System.out.format("Trying square '%s' and digit '%d': %s\n", cells.get(s).getName(), d, true);
-          if (solveType == 'f' || solClone.getMultiVal() != 0) {
+          if (solveType == 'f' || (solution.getSolved() && compareSol(solClone, multiSolution)) ) {
             return solClone;
           } else {
             if (verbose && !generating) {
@@ -176,10 +176,9 @@ public class Solver {
             }
           }
         }
-        //System.out.format("Trying square '%s' and digit '%d': %s\n", cells.get(s).getName(), d, false);
         randValues.remove(d);
       }
-      if (multiSolution != null) {
+      if (solution.getSolved()) {
         return multiSolution;
       }
     }
@@ -199,15 +198,15 @@ public class Solver {
     } else {
       minStart = (int)Math.pow(sudoku.getDimensions(), 4)/3;
     } 
-    //if (sudoku.getDimensions() > 3) {
-    //  minStart = (int)Math.pow(sudoku.getDimensions(), 4)*5/12; //For large sudokus, given too few starting squares are difficult to check for multiple solutions
-    //}
+    if (sudoku.getDimensions() > 3) {
+      minStart = (int)Math.pow(sudoku.getDimensions(), 4)*5/12; //For large sudokus, given too few starting squares are difficult to check for multiple solutions
+    }
     if (verbose) {
       System.out.println("Generating a unique sudoku board...");
       System.out.flush();
     }
     Solution solution = new Solution(sudoku);
-    solution.setCells(stringToCells(sudoku.getBlank()));
+    solution.setCells(stringToCells(sudoku.getGrid("blank")));
     solution = solve(parse(solution));
     if (verbose) {
       System.out.println("Finished producing a sudoku board");
@@ -289,9 +288,28 @@ public class Solver {
     }
     return cList;
   }
-
+  
+  private boolean compareSol(Solution sol1, Solution sol2) {
+    for (int i = 0; i < (int)Math.pow(sudoku.getDimensions(),4); ++i) {
+      if (sol1.getCells().get(i).getValues().get(0) != sol2.getCells().get(i).getValues().get(0)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  
   public void setVerbose(Boolean verbose) {
     this.verbose = verbose;
+  }
+  
+  private List<Integer> purgeSquares(List<Cell> cells) {
+    List<Integer> result = new ArrayList<Integer>();
+    for (Cell cell : cells) {
+      if (cell.getValues().size() > 1) {
+        result.add(cells.indexOf(cell));
+      }
+    }
+    return result;
   }
   
   @Deprecated

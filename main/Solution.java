@@ -11,6 +11,7 @@ public class Solution implements Cloneable{
   private boolean solved;
   private int multiSquare;
   private int multiVal;
+
   
   public Solution (Sudoku sudoku) {
     this.sudoku = sudoku;

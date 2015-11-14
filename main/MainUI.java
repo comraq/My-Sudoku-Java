@@ -12,17 +12,17 @@ public class MainUI {
   }
   
   public void display() {
-    output(sudoku.getSolution());
+    output(sudoku.getSolution().getCells());
   }
   
   public void display(Solution solution) {
-    output(solution);
+    output(solution.getCells());
   }
   
-  public void output(Solution solution) {
+  public void output(List<Cell> cells) {
     int dimension = sudoku.getDimensions();
     int width = 1;
-    for (Cell cell : solution.getCells()) {
+    for (Cell cell : cells) {
       if (cell.getValues().size() > width) {
         width = cell.getValues().size();
         if (width == (int)Math.pow(dimension, 2)) {
@@ -46,7 +46,7 @@ public class MainUI {
         if ((c != 0) && (c%dimension == 0)) {
           System.out.print('|');
         }
-        String valStr = joinList(solution.getCells().get(r*(int)Math.pow(dimension, 2)+ c).getValues(), " ");
+        String valStr = joinList(cells.get(r*(int)Math.pow(dimension, 2)+ c).getValues(), " ");
         System.out.print("(" + valStr + ")");
         for (int i = 0; i < (width - 2 - valStr.length()); ++i) {
           System.out.print(' ');
