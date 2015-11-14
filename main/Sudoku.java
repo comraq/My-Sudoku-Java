@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Map;
+
+import javax.swing.tree.DefaultMutableTreeNode;
+
 import java.util.HashMap;
 
 public class Sudoku {
@@ -89,7 +92,7 @@ public class Sudoku {
         input = reader.readLine();
         if (input.contains("q")) {
           return;
-        } else if (input.contains("d")) {
+        } else if (input.contains("v")) {
           solver.setVerbose(true);
         }
         if (input.contains("e")) {
@@ -120,7 +123,7 @@ public class Sudoku {
         if (input.contains("q")) {
           return;
         } else if (!input.contains("s")) {
-          if (input.contains("d")) {
+          if (input.contains("v")) {
             solver.setVerbose(true);
           }
           if (input.contains("c")) {
@@ -129,12 +132,14 @@ public class Sudoku {
             solution = solver.solve();
           }
           ui.display();
-          return;
+          System.out.println("MultiSolution found? " + solution.getSolved());
+          break;
         }
       } catch (IOException e) {
         System.out.println("Error reading input.");
       }
-    }  
+    } 
+    ui.printTree("", solver.getRoot());
   }
 
   public int getDimensions() {

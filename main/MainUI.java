@@ -3,6 +3,8 @@ package main;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.tree.DefaultMutableTreeNode;
+
 public class MainUI {
 
   private Sudoku sudoku;
@@ -76,6 +78,20 @@ public class MainUI {
       str += (s + item);
     }
     return str.substring(1);
+  }
+  
+  public void printTree(String space, DefaultMutableTreeNode node) {
+    char r = ((SolutionTreeNode) node).getResult()? 't' : 'f';
+    char m = ((SolutionTreeNode) node).getMatch()? 't' : 'f';
+    for (int index = node.getChildCount() - 1; index >= 0; --index) {
+      if (node.getChildAt(index) != null) {
+        printTree(space+"    ", (DefaultMutableTreeNode) node.getChildAt(index));
+      }
+      if (index == node.getChildCount()/2) {
+        System.out.println(space + ((SolutionTreeNode) node).getName() + " " + ((SolutionTreeNode) node).getVal());
+        System.out.println(space + r + "  " + m);
+      }
+    }
   }
   
   @Deprecated

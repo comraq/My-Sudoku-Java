@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
+import javax.swing.tree.DefaultMutableTreeNode;
+
 public class Solver {
   
   private Sudoku sudoku;
@@ -13,11 +15,15 @@ public class Solver {
   private boolean verbose;
   private Solution multiSolution;
   
+  private DefaultMutableTreeNode root;
+  
   public Solver(Sudoku sudoku) {
     this.sudoku = sudoku;
     multiSolution = null;
     verbose = false;
     generating = false;
+    
+    root = new SolutionTreeNode();
   }
   
   public Solution solve() throws CloneNotSupportedException {
@@ -29,12 +35,14 @@ public class Solver {
   }
   
   public Solution solve(Solution solution) throws CloneNotSupportedException {
-    return solve(parse(solution), 'f');
+    root.removeAllChildren();
+    return solve(parse(solution), 'f', root);
   }
   
   public Solution checkSolve(Solution solution) throws CloneNotSupportedException {
     multiSolution = null;
-    return solve(parse(solution), 'c');
+    root.removeAllChildren();
+    return solve(parse(solution), 'c', root);
   }
   
   private Solution parse(Solution solution) throws CloneNotSupportedException {
@@ -61,9 +69,23 @@ public class Solver {
     List<Integer> elimList = new ArrayList<Integer>(solution.getCells().get(square).getValues());
     elimList.remove(digit);
     for (int elimDigit : elimList) {
-      if (eliminate(solution, square, elimDigit).getContradiction()) { 
-        return solution;
-      }
+      //if (eliminate(solution, square, elimDigit).getContradiction()) { 
+      //  return solution;
+      //}
+      eliminate(solution, square, elimDigit);
+    }
+    return solution;
+  }
+  
+  private Solution checkAssign(Solution solution, int square, Integer digit) {
+    List<Integer> elimList = new ArrayList<Integer>(solution.getCells().get(square).getValues());
+    elimList.remove(digit);
+    solution.getCells().get(square).setValue(digit);
+    for (int elimDigit : elimList) {
+      //if (eliminate(solution, square, elimDigit).getContradiction()) { 
+      //  return solution;
+      //}
+      propagate(solution, square, elimDigit);
     }
     return solution;
   }
@@ -74,6 +96,11 @@ public class Solver {
       return solution; //Indicating that digit d was already eliminated from the possible values of square s
     }
     cells.get(square).getValues().remove(digit);
+    return propagate(solution, square, digit);
+  }  
+    
+  private Solution propagate(Solution solution, int square, Integer digit) {
+    List<Cell> cells = solution.getCells();
     //Case 1) of Propagation
     if (cells.get(square).getValues().isEmpty()) {
       solution.setContradiction(true);
@@ -113,7 +140,7 @@ public class Solver {
     return solution;
   }
   
-  private Solution solve(Solution solution, char solveType) throws CloneNotSupportedException {
+  private Solution solve(Solution solution, char solveType, DefaultMutableTreeNode node) throws CloneNotSupportedException {
     if (solution.getContradiction()) {
       return solution;
     }
@@ -124,20 +151,23 @@ public class Solver {
         break;
       }
     }
+    
+    int s = 0;
+    
     if (solved) {
       return solution; //Solution is solved, we are done!
     } else {
-      if (verbose && !generating) {
+      /*if (verbose && !generating) {
         sudoku.getUI().display(solution);
-      }
+      }*/
       List<Cell> cells = solution.getCells();
       //Choosing an unfilled square s with the fewest possible values
-      int s = 0;
+      
+      //int s = 0;
+      
       int minValues = (int)Math.pow(sudoku.getDimensions(), 2);
       
       List<Integer> randSquares = new ArrayList<Integer>(sudoku.getSquares());
-      //List<Integer> randSquares = new ArrayList<Integer>(purgeSquares(cells));
-      //System.out.println("Size of randSquares: " + randSquares.size());
       while (!randSquares.isEmpty()) {
         Integer randS = randSquares.get(ThreadLocalRandom.current().nextInt(0, randSquares.size()));
         if (cells.get(randS).getValues().size() > 1) {
@@ -154,9 +184,28 @@ public class Solver {
       List<Integer> randValues = new ArrayList<Integer>(cells.get(s).getValues());
       while (!randValues.isEmpty()) {
         Integer d = randValues.get(ThreadLocalRandom.current().nextInt(0, randValues.size()));
-        Solution solClone = solve(assign(solution.clone(), s, d), solveType);
+        
+        if (verbose && !generating) {
+          System.out.format("About to assign '%d' to '%s'\n", d, cells.get(s).getName());
+          sudoku.getUI().display(solution);
+        }
+        DefaultMutableTreeNode child = new SolutionTreeNode();
+        node.add(child);
+        ((SolutionTreeNode) child).setName(cells.get(s).getName());
+        ((SolutionTreeNode) child).setVal(d);
+        
+        Solution solClone = solve(checkAssign(solution.clone(), s, d), solveType, child);    
         if (!solClone.getContradiction()) {
-          if (solveType == 'f' || (solution.getSolved() && compareSol(solClone, multiSolution)) ) {
+          if (solveType == 'f' || solClone.getMultiVal() != 0) {
+            
+            if (verbose && !generating) {
+              sudoku.getUI().display(solution);
+              System.out.format("Result from assigning '%d' to '%s'; multiVal already set\n", d, cells.get(s).getName());
+            }
+            ((SolutionTreeNode) child).setResult(true);
+            ((SolutionTreeNode) child).setMatch(d == solClone.getCells().get(s).getValues().get(0));
+            
+            //Immediately return current solution if we are doing fastSolve or already set multiSquare and multiVal for second solution
             return solClone;
           } else {
             if (verbose && !generating) {
@@ -164,24 +213,58 @@ public class Solver {
               sudoku.getUI().display(solClone);
             }
             if (solution.getSolved()) {
+            //if (multiSolution != null) {  
               if (!generating) {
                 System.out.println("Multiple solutions found!");
                 sudoku.getUI().display(multiSolution);
+              } 
+              
+              if (verbose && !generating) {
+                sudoku.getUI().display(solution);
+                System.out.format("Result from assigning '%d' to '%s': setting multiSquare and multiVal\n", d, cells.get(s).getName());
               }
+              ((SolutionTreeNode) child).setResult(true);
+              ((SolutionTreeNode) child).setMatch(d == solClone.getCells().get(s).getValues().get(0));
+              
               solClone.setMulti(s, d);
               return solClone;
             } else {
+              //System.out.println("Here!");
               solution.setSolved(true);
               multiSolution = solClone;
             }
+          } 
+        }           
+        
+        else  {
+          if (verbose && !generating) {
+            sudoku.getUI().display(solution);
+            System.out.format("Result from assigning '%d' to '%s': contradiction\n", d, cells.get(s).getName());
           }
+          ((SolutionTreeNode) child).setResult(false);
+          //((SolutionTreeNode) child).setMatch(d == solClone.getCells().get(s).getValues().get(0));
         }
+        
         randValues.remove(d);
-      }
+      } 
       if (solution.getSolved()) {
+        
+        if (verbose && !generating) {
+          sudoku.getUI().display(solution);
+          System.out.format("No remaining digits to assign to '%s': return existing solution\n", cells.get(s).getName());
+        }
+        ((SolutionTreeNode) node).setResult(true);
+        
         return multiSolution;
       }
     }
+    
+    if (verbose && !generating) {
+      sudoku.getUI().display(solution);
+      System.out.format("All digits assignments to '%s' are false: contradiction\n", solution.getCells().get(s).getName());
+    }
+    ((SolutionTreeNode) node).setResult(false);
+    
     solution.setContradiction(true);
     return solution;
   }
@@ -289,27 +372,12 @@ public class Solver {
     return cList;
   }
   
-  private boolean compareSol(Solution sol1, Solution sol2) {
-    for (int i = 0; i < (int)Math.pow(sudoku.getDimensions(),4); ++i) {
-      if (sol1.getCells().get(i).getValues().get(0) != sol2.getCells().get(i).getValues().get(0)) {
-        return false;
-      }
-    }
-    return true;
-  }
-  
   public void setVerbose(Boolean verbose) {
     this.verbose = verbose;
   }
   
-  private List<Integer> purgeSquares(List<Cell> cells) {
-    List<Integer> result = new ArrayList<Integer>();
-    for (Cell cell : cells) {
-      if (cell.getValues().size() > 1) {
-        result.add(cells.indexOf(cell));
-      }
-    }
-    return result;
+  public DefaultMutableTreeNode getRoot() {
+    return root;
   }
   
   @Deprecated
