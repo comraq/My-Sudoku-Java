@@ -14,6 +14,10 @@ public class MainUI extends JFrame {
   private Solver solver;
   //private GameBoard board;  
   
+  public static void main(String[] args) throws CloneNotSupportedException {
+    new Sudoku().getMainUI().start();
+  }
+  
   public MainUI (Sudoku sudoku) {
     this.sudoku = sudoku;
     solver = sudoku.getSolver();
