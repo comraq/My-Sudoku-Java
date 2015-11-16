@@ -1,13 +1,10 @@
 package main;
 
 import java.util.List;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Map;
 
-import java.util.HashMap;
+import javax.swing.SwingUtilities;
+
+import java.util.ArrayList;
 
 public class Sudoku {
   
@@ -15,21 +12,29 @@ public class Sudoku {
   private final List<Character> rows;
   private final List<Character> cols; 
   private final List<List<Integer>> unitList;
-  private final Map<Integer, List<List<Integer>>> unitMap;
-  private final Map<Integer, List<Integer>> peerMap;
+  private final List<List<List<Integer>>> units;
+  private final List<List<Integer>> peers;
   private final Solver solver;
   private final MainUI ui;
   
   private int dimensions;
   private List<Integer> squares;
   private Solution solution;
-
+  
   private String testGrid = "4 . . . . . 8 . 5 . 3 . . . . . . . . . . 7 . . . . . . 2 . . . . . 6 . . . . . 8 . 4 . . . . . . 1 . . . . . . . 6 . 3 . 7 . 5 . . 2 . . . . . 1 . 4 . . . . . .";
   private String multiGrid = ". . . . . 6 . . . . 5 9 . . . . . 8 2 . . . . 8 . . . . 4 5 . . . . . . . . 3 . . . . . . . . 6 . . 3 . 5 4 . . . 3 2 5 . . 6 . . . . . . . . . . . . . . . . . .";
   private String blank;
   
   public static void main(String[] args) throws CloneNotSupportedException{
-    new Sudoku().start();
+    Sudoku sudoku = new Sudoku().initialize();
+    
+    SwingUtilities.invokeLater(new Runnable() {
+      @Override
+      public void run() {
+        sudoku.getMainUI().init();
+        sudoku.getMainUI().setVisible(true);
+      }
+    });
   }
   
   public Sudoku() {
@@ -37,10 +42,15 @@ public class Sudoku {
     rows = new ArrayList<Character>();
     cols = new ArrayList<Character>(); 
     unitList = new ArrayList<List<Integer>>();
-    unitMap = new HashMap<Integer, List<List<Integer>>>();
-    peerMap = new HashMap<Integer, List<Integer>>();
+    units = new ArrayList<List<List<Integer>>>();
+    peers = new ArrayList<List<Integer>>();
     solver = new Solver(this);
     ui = new MainUI(this);
+  }
+  
+  public Sudoku initialize() {
+    initialize(3);
+    return this;
   }
   
   public Sudoku initialize(int dimensions){
@@ -60,84 +70,17 @@ public class Sudoku {
     
     squares = initSquares(rows, cols);
     assert squares.size() == (int)Math.pow(dimensions, 4);
-    solution = new Solution(this);
-    assert solution.getCells().size() == (int)Math.pow(dimensions, 4);
     initUnitList();
     assert unitList.size() == (int)Math.pow(dimensions, 2)*3;
-    initUnitMap();
-    assert unitMap.get(squares.get(25)).size() == 3; //Cell chosen arbitrarily
-    initPeerMap();
-    assert peerMap.get(squares.get(50)).size() == 3*((int)Math.pow(dimensions, 2) - 1) - 2*(dimensions-1); //Cell chosen arbitrarily
+    initUnits();
+    assert units.get(squares.get(25)).size() == 3; //Cell chosen arbitrarily
+    initPeers();
+    assert peers.get(squares.get(50)).size() == 3*((int)Math.pow(dimensions, 2) - 1) - 2*(dimensions-1); //Cell chosen arbitrarily
     
     for (blank = "."; blank.length() < (int)Math.pow(dimensions, 4); blank += " .") {
       //Initializing the blank string/grid
     }
     return this;
-  }
-  
-  public void start() throws CloneNotSupportedException {
-    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-    System.out.println("Enter q at any time to quit...");
-    while (true) {
-      try {
-        System.out.print("Please enter size: ");
-        String input = reader.readLine();
-        if (input.contains("q")) {
-          return;
-        }
-        initialize(Integer.parseInt(input));
-        System.out.println("Please select puzzle (ex: e = easy, n = normal, h = hard, or nothing for an empty puzzle): ");
-        input = reader.readLine();
-        if (input.contains("q")) {
-          return;
-        } else if (input.contains("v")) {
-          solver.setVerbose(true);
-        }
-        
-        if (input.contains("e")) {
-          solution = solver.generate('e');
-        } else if (input.contains("n")) {
-          solution = solver.generate('n');  
-        } else if (input.contains("h")) {
-          solution = solver.generate('h');
-        } else if (input.contains("m")) {
-          solution = solver.generate('m');
-        } else if (input.contains("1")) {
-          solution.setCells(solver.stringToCells(testGrid));
-        } else if (input.contains("2")) {
-          solution.setCells(solver.stringToCells(multiGrid));
-        } else {
-          solution.setCells(solver.stringToCells(blank));          
-        }
-        ui.display();
-        solver.setVerbose(false);
-        System.out.println("Press Enter to solve puzzle or s to select another Sudoku: ");
-        System.out.println("Please select options:\n"
-                         + "Include flags? (optional)\n"
-                         + "d = display steps\n"
-                         + "c = check solve\n"
-                         + "f = fast solve");
-        input = reader.readLine();
-        if (input.contains("q")) {
-          return;
-        } else if (!input.contains("s")) {
-          if (input.contains("v")) {
-            solver.setVerbose(true);
-          } /*else if (input.contains("d")) {
-            solver.setDebug(true);
-          }*/
-          if (input.contains("c")) {
-            solution = solver.checkSolve();
-          } else {
-            solution = solver.solve();
-          }
-          ui.display();
-          break;
-        }
-      } catch (IOException e) {
-        System.out.println("Error reading input.");
-      }
-    } 
   }
 
   public int getDimensions() {
@@ -164,23 +107,27 @@ public class Sudoku {
     return unitList;
   }
   
-  public Map<Integer, List<List<Integer>>> getUnitMap() {
-    return unitMap;
+  public List<List<List<Integer>>> getUnits() {
+    return units;
   }
   
-  public Map<Integer, List<Integer>> getPeerMap() {
-    return peerMap;
+  public List<List<Integer>> getPeers() {
+    return peers;
   }
   
   public Solution getSolution() {
     return solution;
   }
   
+  public void setSolution(Solution solution) {
+    this.solution = solution;
+  }
+  
   public Solver getSolver() {
     return solver;
   }
   
-  public MainUI getUI() {
+  public MainUI getMainUI() {
     return ui;
   }
   
@@ -194,7 +141,7 @@ public class Sudoku {
     }
   }
   
-  public List<Cell> initCells() {
+  protected List<Cell> initCells() {
     List<Cell> retCells = new ArrayList<Cell>();
     for (char row : rows) {
       for (char col : cols) {
@@ -204,7 +151,7 @@ public class Sudoku {
     return retCells; 
   }
   
-  public List<Cell> initCells(List<Character> rows, List<Character> cols, List<Cell> toCells, List<Cell> fromCells) {
+  protected List<Cell> initCells(List<Character> rows, List<Character> cols, List<Cell> toCells, List<Cell> fromCells) {
     for (char row : rows) {
       for (char col : cols) {
         toCells.add(fromCells.get(this.rows.indexOf(row)*(int)Math.pow(dimensions, 2) + this.cols.indexOf(col)));
@@ -213,7 +160,7 @@ public class Sudoku {
     return toCells; 
   }  
   
-  private List<Integer> initSquares(List<Character> rows, List<Character> cols) {
+  private final List<Integer> initSquares(List<Character> rows, List<Character> cols) {
     List<Integer> retSquares = new ArrayList<Integer>();
     for (char row : rows) {
       for (char col : cols) {
@@ -238,14 +185,14 @@ public class Sudoku {
     }
   }
   
-  private final void initUnitMap() {
-    unitMap.clear();
+  private final void initUnits() {
+    units.clear();
     for (int square : squares) {
-      unitMap.put(square, new ArrayList<List<Integer>>());
+      units.add(new ArrayList<List<Integer>>());
       for (List<Integer> unit : unitList) {
         if (unit.contains(square)) {
-          unitMap.get(square).add(unit);
-          if (unitMap.get(square).size() == 3) {
+          units.get(square).add(unit);
+          if (units.get(square).size() == 3) {
             break;
           }
         }
@@ -253,14 +200,14 @@ public class Sudoku {
     }    
   }
   
-  private final void initPeerMap() {
-    peerMap.clear();
+  private final void initPeers() {
+    peers.clear();
     for (int square : squares) {
-      peerMap.put(square, new ArrayList<Integer>());
-      for (List<Integer> unit : unitMap.get(square)) {
+      peers.add(square, new ArrayList<Integer>());
+      for (List<Integer> unit : units.get(square)) {
         for (int unitSquare : unit) {
-          if (unitSquare != square && !peerMap.get(square).contains(unitSquare)) {
-            peerMap.get(square).add(unitSquare);
+          if (unitSquare != square && !peers.get(square).contains(unitSquare)) {
+            peers.get(square).add(unitSquare);
           }
         }  
       }

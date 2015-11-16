@@ -80,7 +80,7 @@ public class Solver {
       return solution; //This is a contradiction as we just removed the last value
     } else if (cells.get(square).getValues().size() == 1) {
       for (int remainingDigit : cells.get(square).getValues()) {
-        for (int peerSquare : sudoku.getPeerMap().get(square)) {
+        for (int peerSquare : sudoku.getPeers().get(square)) {
           if (eliminate(solution, peerSquare, remainingDigit).getContradiction()) {
             solution.setContradiction(true);
             return solution;
@@ -90,7 +90,7 @@ public class Solver {
     }
     //Case 2) of Propagation
     List<Integer> places = new ArrayList<Integer>();
-    for (List<Integer> unit : sudoku.getUnitMap().get(square)) {
+    for (List<Integer> unit : sudoku.getUnits().get(square)) {
       for (int s : unit) {
         if (cells.get(s).getValues().contains(digit)) {
           places.add(s);
@@ -126,14 +126,15 @@ public class Solver {
       return solution; //Solution is solved, we are done!
     } else {
       if (verbose && !generating) {
-        sudoku.getUI().display(solution);
+        sudoku.getMainUI().display(solution);
       }
       List<Cell> cells = solution.getCells();
       //Choosing an unfilled square s with the fewest possible values
       int minValues = (int)Math.pow(sudoku.getDimensions(), 2);
       List<Integer> randSquares = new ArrayList<Integer>(sudoku.getSquares());
+      Integer randS;
       while (!randSquares.isEmpty()) {
-        Integer randS = randSquares.get(ThreadLocalRandom.current().nextInt(0, randSquares.size()));
+        randS = randSquares.get(ThreadLocalRandom.current().nextInt(0, randSquares.size()));
         if (cells.get(randS).getValues().size() > 1) {
           if (cells.get(randS).getValues().size() == 2) {
             s = randS;
@@ -145,10 +146,14 @@ public class Solver {
         } 
         randSquares.remove(randS); //randS needs to be an Integer object and not an int index or else this remove statement will remove the wrong element
       }
+      randS = null;
+      randSquares = null;
       List<Integer> randValues = new ArrayList<Integer>(cells.get(s).getValues());
+      Integer d;
+      Solution solClone;
       while (!randValues.isEmpty()) {
-        Integer d = randValues.get(ThreadLocalRandom.current().nextInt(0, randValues.size()));
-        Solution solClone = solve(assign(solution.clone(), s, d), solveType);
+        d = randValues.get(ThreadLocalRandom.current().nextInt(0, randValues.size()));
+        solClone = solve(assign(solution.clone(), s, d), solveType);
         if (!solClone.getContradiction()) {
           if (solveType == 'f' || solClone.getMultiVal() != 0) {
             //Immediately return current solution if we are doing fastSolve or already set multiSquare and multiVal for second solution
@@ -156,12 +161,12 @@ public class Solver {
           } else {
             if (verbose && !generating) {
               System.out.format("Found a solution! Cell = %s, Digit = %d\n", cells.get(s).getName(), d);
-              sudoku.getUI().display(solClone);
+              sudoku.getMainUI().display(solClone);
             }
             if (multiSolution != null) {  
               if (!generating) {
                 System.out.println("Multiple solutions found!");
-                sudoku.getUI().display(multiSolution);
+                sudoku.getMainUI().display(multiSolution);
               } 
               solClone.setMulti(s, d);
               return solClone;
@@ -195,7 +200,8 @@ public class Solver {
       minStart = (int)Math.pow(sudoku.getDimensions(), 4)/3;
     } 
     if (sudoku.getDimensions() > 3) {
-      minStart = (int)Math.pow(sudoku.getDimensions(), 4)*5/12; //For large sudokus, given too few starting squares are difficult to check for multiple solutions
+      //For large sudokus, multi-solution checking requires too much memory and slows down the garbage collector
+      minStart = (int)Math.pow(sudoku.getDimensions(), 4)*5/12;
     }
     if (verbose) {
       System.out.println("Generating a unique sudoku board...");
@@ -214,6 +220,7 @@ public class Solver {
       solution.getCells().get((int)square).getValues().clear();
       randSquares.remove(square);
     }
+    randSquares = null;
     if (verbose) {
       System.out.println("Checking for multiple solutions...");
       System.out.flush();
@@ -284,19 +291,7 @@ public class Solver {
   public void setVerbose(boolean verbose) {
     this.verbose = verbose;
   }
-  
-  /*public DefaultMutableTreeNode getRoot() {
-    return root;
-  }
-  
-  public void setDebug(boolean debug) {
-    this.debug = debug;
-  }
-  
-  public boolean getDebug() {
-    return debug;
-  }
-*/
+
   @Deprecated
   public Solver withSudoku(Sudoku sudoku) {
     this.sudoku = sudoku;

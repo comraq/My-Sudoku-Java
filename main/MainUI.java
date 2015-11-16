@@ -1,14 +1,96 @@
 package main;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class MainUI {
+import javax.swing.JFrame;
+
+public class MainUI extends JFrame {
 
   private Sudoku sudoku;
+  private Solver solver;
+  //private GameBoard board;  
   
   public MainUI (Sudoku sudoku) {
     this.sudoku = sudoku;
+    solver = sudoku.getSolver();
+  }
+  
+  public void init() {
+    setTitle(sudoku.getDimensions() + " x " + sudoku.getDimensions() + " Sudoku");
+    setSize(500,400);
+    setLocationRelativeTo(null);
+    setDefaultCloseOperation(EXIT_ON_CLOSE);
+    setContentPane(new ButtonPanel(this).initialize());
+  }
+  
+  public void start() throws CloneNotSupportedException {
+    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+    System.out.println("Enter q at any time to quit...");
+    while (true) {
+      try {
+        System.out.print("Please enter size: ");
+        String input = reader.readLine();
+        if (input.contains("q")) {
+          return;
+        }
+        sudoku.initialize(Integer.parseInt(input));
+        System.out.println("Please select puzzle (ex: e = easy, n = normal, h = hard, or nothing for an empty puzzle): ");
+        input = reader.readLine();
+        if (input.contains("q")) {
+          return;
+        } else if (input.contains("v")) {
+          solver.setVerbose(true);
+        }
+        
+        if (input.contains("e")) {
+          sudoku.setSolution(solver.generate('e'));
+        } else if (input.contains("n")) {
+          sudoku.setSolution(solver.generate('n'));  
+        } else if (input.contains("h")) {
+          sudoku.setSolution(solver.generate('h'));
+        } else if (input.contains("m")) {
+          sudoku.setSolution(solver.generate('m'));
+        } else if (input.contains("1")) {
+          sudoku.setSolution(new Solution(sudoku));
+          sudoku.getSolution().setCells(solver.stringToCells(sudoku.getGrid("test")));
+        } else if (input.contains("2")) {
+          sudoku.setSolution(new Solution(sudoku));
+          sudoku.getSolution().setCells(solver.stringToCells(sudoku.getGrid("multi")));
+        } else {
+          sudoku.setSolution(new Solution(sudoku));
+          sudoku.getSolution().setCells(solver.stringToCells(sudoku.getGrid("blank")));          
+        }
+        display();
+        solver.setVerbose(false);
+        System.out.println("Press Enter to solve puzzle or s to select another Sudoku: ");
+        System.out.println("Please select options:\n"
+                         + "Include flags? (optional)\n"
+                         + "d = display steps\n"
+                         + "c = check solve\n"
+                         + "f = fast solve");
+        input = reader.readLine();
+        if (input.contains("q")) {
+          return;
+        } else if (!input.contains("s")) {
+          if (input.contains("v")) {
+            solver.setVerbose(true);
+          } 
+          if (input.contains("c")) {
+            sudoku.setSolution(solver.checkSolve());
+          } else {
+            sudoku.setSolution(solver.solve());
+          }
+          display();
+          break;
+        }
+      } catch (IOException e) {
+        System.out.println("Error reading input.");
+      }
+    } 
   }
   
   public void display() {
@@ -56,10 +138,19 @@ public class MainUI {
     }
     System.out.println();
     System.out.flush();
-    //pause();
+    //delay();
   }
   
-  private void pause() {
+  
+  protected void generate() {
+    
+  }
+  
+  protected void reset() {
+    
+  }
+  
+  private void delay() {
     try {
       TimeUnit.MILLISECONDS.sleep(200);
     } catch (InterruptedException e) {

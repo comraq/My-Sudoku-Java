@@ -6,7 +6,6 @@ import java.util.List;
 public class Solution implements Cloneable{
   
   private List<Cell> cells;
-  private Sudoku sudoku;
   private boolean contradiction;
   private boolean solved;
   private int multiSquare;
@@ -14,7 +13,6 @@ public class Solution implements Cloneable{
 
   
   public Solution (Sudoku sudoku) {
-    this.sudoku = sudoku;
     contradiction = false;
     solved = false;
     cells = sudoku.initCells();
