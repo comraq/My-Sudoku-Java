@@ -1,9 +1,6 @@
 package main;
 
 import java.util.List;
-
-import javax.swing.SwingUtilities;
-
 import java.util.ArrayList;
 
 public class Sudoku {
@@ -26,15 +23,7 @@ public class Sudoku {
   private String blank;
   
   public static void main(String[] args) throws CloneNotSupportedException{
-    Sudoku sudoku = new Sudoku().initialize();
-    
-    SwingUtilities.invokeLater(new Runnable() {
-      @Override
-      public void run() {
-        sudoku.getMainUI().init();
-        sudoku.getMainUI().setVisible(true);
-      }
-    });
+    new Sudoku().getMainUI().start();
   }
   
   public Sudoku() {
@@ -116,6 +105,9 @@ public class Sudoku {
   }
   
   public Solution getSolution() {
+    if (solution == null) {
+      solution = new Solution(this);
+    }
     return solution;
   }
   

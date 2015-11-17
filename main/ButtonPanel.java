@@ -1,6 +1,5 @@
 package main;
 
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,7 +7,6 @@ import java.awt.event.ActionListener;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 public class ButtonPanel extends JPanel {
@@ -21,34 +19,37 @@ public class ButtonPanel extends JPanel {
   
   private JButton generateButton;
   private JButton resetButton;
-  private JButton quitButton;
+  private JButton checkButton;
   private JButton hintButton;
+  private JButton quitButton;
   
   public ButtonPanel(MainUI ui) {
     this.ui = ui;
     buttonCount = 0;
-    
+    initialize();
   }
 
-  public JPanel initialize() {
-    initLayout();
-    
+  private void initialize() {
     generateButton = new JButton("Generate");
     resetButton = new JButton("Reset");
+    checkButton = new JButton("Check");
+    hintButton = new JButton("Hint");
     quitButton = new JButton("Quit");
     
+    initLayout();
+    setPanelSize();
     initGenerateButton();
     initResetButton();
+    initCheckButton();
+    initHintButton();
     initQuitButton(); 
     
     setName("sudoku.buttonPanel"); 
-    setPanelSize();
-    return this;
   }  
   
   private void initLayout() {
-    BoxLayout bLayout = new BoxLayout(this, BoxLayout.Y_AXIS);
-    setLayout(bLayout);
+    BoxLayout layout = new BoxLayout(this, BoxLayout.Y_AXIS);
+    setLayout(layout);
   }
   
   private void initGenerateButton() {
@@ -61,9 +62,9 @@ public class ButtonPanel extends JPanel {
       }
     });
     generateButton.setName("sudoku.generate");
-    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/2)));
+    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/4)));
     add(generateButton);
-    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/2)));
+    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/4)));
     ++buttonCount; 
   }
   
@@ -78,9 +79,43 @@ public class ButtonPanel extends JPanel {
       }
     });
     resetButton.setName("sudoku.reset");
-    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/2)));
+    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/4)));
     add(resetButton);
-    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/2)));
+    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/4)));
+    ++buttonCount; 
+  }
+  
+  private void initCheckButton() {
+    assert checkButton != null;
+    checkButton.setAlignmentX(CENTER_ALIGNMENT);
+    checkButton.setEnabled(false);
+    checkButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        ui.check();
+      }
+    });
+    checkButton.setName("sudoku.check");
+    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/4)));
+    add(checkButton);
+    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/4)));
+    ++buttonCount; 
+  }
+
+  private void initHintButton() {
+    assert hintButton != null;
+    hintButton.setAlignmentX(CENTER_ALIGNMENT);
+    hintButton.setEnabled(false);
+    hintButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        ui.hint();
+      }
+    });
+    hintButton.setName("sudoku.hint");
+    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/4)));
+    add(hintButton);
+    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/4)));
     ++buttonCount; 
   }
   
@@ -94,9 +129,9 @@ public class ButtonPanel extends JPanel {
       }
     });
     quitButton.setName("sudoku.quit");
-    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/2)));
+    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/4)));
     add(quitButton);
-    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/2)));
+    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/4)));
     ++buttonCount; 
   }
   

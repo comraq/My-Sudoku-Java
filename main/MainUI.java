@@ -6,29 +6,56 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 public class MainUI extends JFrame {
 
   private Sudoku sudoku;
   private Solver solver;
-  //private GameBoard board;  
+  private JPanel buttonPanel, gamePanel;  
   
   public static void main(String[] args) throws CloneNotSupportedException {
-    new Sudoku().getMainUI().start();
+    Sudoku sudoku = new Sudoku().initialize();
+    
+    SwingUtilities.invokeLater(new Runnable() {
+      @Override
+      public void run() {
+        sudoku.getMainUI().setVisible(true);
+      }
+    });
   }
   
   public MainUI (Sudoku sudoku) {
     this.sudoku = sudoku;
     solver = sudoku.getSolver();
+    gamePanel = new GamePanel(this);
+    buttonPanel = new ButtonPanel(this);
+    init();
   }
   
-  public void init() {
+  private void init() {
     setTitle(sudoku.getDimensions() + " x " + sudoku.getDimensions() + " Sudoku");
     setSize(500,400);
     setLocationRelativeTo(null);
     setDefaultCloseOperation(EXIT_ON_CLOSE);
-    setContentPane(new ButtonPanel(this).initialize());
+
+    initLayout();
+    addComponents();
+    
+    setName("sudoku.mainUI"); 
+  }
+  
+  private void initLayout() {
+    BoxLayout layout = new BoxLayout(getContentPane(), BoxLayout.X_AXIS);
+    setLayout(layout);
+  }
+  
+  private void addComponents() {
+    add(gamePanel);
+    add(buttonPanel);    
   }
   
   public void start() throws CloneNotSupportedException {
@@ -153,6 +180,14 @@ public class MainUI extends JFrame {
   protected void reset() {
     
   }
+
+  protected void check() {
+    
+  }
+
+  protected void hint() {
+    
+  }
   
   private void delay() {
     try {
@@ -160,6 +195,10 @@ public class MainUI extends JFrame {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
+  }
+  
+  public Sudoku getSudoku() {
+    return sudoku;  
   }
   
   public <T> String joinList(List<T> list, String s) {
