@@ -1,6 +1,7 @@
 package main;
 
 import java.awt.Dimension;
+import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -14,6 +15,7 @@ public class ButtonPanel extends JPanel {
   private static final int BUTTON_WIDTH = 96;
   private static final int BUTTON_HEIGHT = 54;
   private int buttonCount;
+  private LayoutManager layout;
   
   private MainUI ui;
   
@@ -48,7 +50,7 @@ public class ButtonPanel extends JPanel {
   }  
   
   private void initLayout() {
-    BoxLayout layout = new BoxLayout(this, BoxLayout.Y_AXIS);
+    layout = new BoxLayout(this, BoxLayout.Y_AXIS);
     setLayout(layout);
   }
   

@@ -1,5 +1,6 @@
 package main;
 
+import java.awt.LayoutManager;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,12 +11,14 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.text.BadLocationException;
 
 public class MainUI extends JFrame {
 
   private Sudoku sudoku;
   private Solver solver;
   private JPanel buttonPanel, gamePanel;  
+  private LayoutManager layout;
   
   public static void main(String[] args) throws CloneNotSupportedException {
     Sudoku sudoku = new Sudoku().initialize();
@@ -23,20 +26,21 @@ public class MainUI extends JFrame {
     SwingUtilities.invokeLater(new Runnable() {
       @Override
       public void run() {
+        sudoku.getMainUI().init();
         sudoku.getMainUI().setVisible(true);
       }
     });
   }
   
-  public MainUI (Sudoku sudoku) {
+  public MainUI(Sudoku sudoku) {
     this.sudoku = sudoku;
     solver = sudoku.getSolver();
-    gamePanel = new GamePanel(this);
-    buttonPanel = new ButtonPanel(this);
-    init();
   }
   
   private void init() {
+    gamePanel = new GamePanel(this);
+    buttonPanel = new ButtonPanel(this);
+    
     setTitle(sudoku.getDimensions() + " x " + sudoku.getDimensions() + " Sudoku");
     setSize(500,400);
     setLocationRelativeTo(null);
@@ -49,7 +53,7 @@ public class MainUI extends JFrame {
   }
   
   private void initLayout() {
-    BoxLayout layout = new BoxLayout(getContentPane(), BoxLayout.X_AXIS);
+    layout = new BoxLayout(getContentPane(), BoxLayout.X_AXIS);
     setLayout(layout);
   }
   
@@ -119,7 +123,7 @@ public class MainUI extends JFrame {
           break;
         }
       } catch (IOException e) {
-        System.out.println("Error reading input.");
+        System.err.println("Error reading input.");
       }
     } 
   }

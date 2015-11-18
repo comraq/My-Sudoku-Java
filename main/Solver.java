@@ -13,6 +13,9 @@ public class Solver {
   private boolean verbose;
   private Solution multiSolution;
   
+  //private int solveCount = 0;
+  //private int multiValCount = 0;
+  
   public Solver(Sudoku sudoku) {
     this.sudoku = sudoku;
     multiSolution = null;
@@ -67,7 +70,7 @@ public class Solver {
     }
     return solution;
   }
-  
+
   private Solution eliminate(Solution solution, int square, Integer digit) {
     List<Cell> cells = solution.getCells();
     if (!cells.get(square).getValues().contains(digit)) {
@@ -185,7 +188,7 @@ public class Solver {
     }
     solution.setContradiction(true);
     return solution;
-  }
+  }  
   
   public Solution generate(char diff) throws CloneNotSupportedException {
     generating = true;
@@ -260,6 +263,7 @@ public class Solver {
       if (sudoku.getDigits().contains(Character.getNumericValue(c))) {
         s_val += c;
       } else if (c == ' ') {
+        cells.get(cListIndex).getValues().clear();
         if (s_val != "") {
           cells.get(cListIndex).getValues().add(Integer.parseInt(s_val));
         }
@@ -267,6 +271,10 @@ public class Solver {
         ++cListIndex;
       }
     }
+    cells.get(cListIndex).getValues().clear();
+    if (s_val != "") {
+      cells.get(cListIndex).getValues().add(Integer.parseInt(s_val));
+    }  
     return this;
   }
   
@@ -278,6 +286,7 @@ public class Solver {
       if (sudoku.getDigits().contains(Character.getNumericValue(c))) {
         s_val += c;
       } else if (c == ' ') {
+        cList.get(cListIndex).getValues().clear();
         if (s_val != "") {
           cList.get(cListIndex).getValues().add(Integer.parseInt(s_val));
         }
@@ -285,7 +294,24 @@ public class Solver {
         ++cListIndex;
       }
     }
+    cList.get(cListIndex).getValues().clear();
+    if (s_val != "") {
+      cList.get(cListIndex).getValues().add(Integer.parseInt(s_val));
+    }  
     return cList;
+  }
+  
+  private String cellsToString(List<Cell> cells) {
+    String grid = "";
+    for (Cell cell : cells) {
+      if (cell.getValues().size() == 1) {
+        grid += cell.getValues().get(0);
+      } else {
+        grid += ".";
+      }
+      grid += " ";
+    }
+    return grid.substring(0, grid.length() - 1);
   }
   
   public void setVerbose(boolean verbose) {
