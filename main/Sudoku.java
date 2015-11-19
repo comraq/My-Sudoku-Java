@@ -162,18 +162,23 @@ public class Sudoku {
     return retSquares;
   }
 
+  /**
+   * Initialize the list of units, starting with square units, listing row by row.
+   * Then, adding the each of the horizontal units.
+   * Last, followed by each of the vertical units. 
+   */
   private final void initUnitList() {
     unitList.clear();
+    for (int row = 0; row < dimensions; ++row) {
+      for (int col = 0; col < dimensions; ++col) {
+        unitList.add(initSquares(rows.subList(row*dimensions, (row + 1)*dimensions), cols.subList(col*dimensions, (col+1)*dimensions)));
+      }
+    }    
     for (int row = 0; row < rows.size(); ++row) {
       unitList.add(initSquares(rows.subList(row, row+1), cols));
     }      
     for (int col = 0; col < cols.size(); ++col) {
       unitList.add(initSquares(rows, cols.subList(col, col+1)));
-    }
-    for (int row = 0; row < dimensions; ++row) {
-      for (int col = 0; col < dimensions; ++col) {
-        unitList.add(initSquares(rows.subList(row*dimensions, (row + 1)*dimensions), cols.subList(col*dimensions, (col+1)*dimensions)));
-      }
     }
   }
   

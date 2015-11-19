@@ -11,7 +11,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.text.BadLocationException;
 
 public class MainUI extends JFrame {
 
@@ -19,6 +18,8 @@ public class MainUI extends JFrame {
   private Solver solver;
   private JPanel buttonPanel, gamePanel;  
   private LayoutManager layout;
+  
+  private int dimension;
   
   public static void main(String[] args) throws CloneNotSupportedException {
     Sudoku sudoku = new Sudoku().initialize();
@@ -35,14 +36,16 @@ public class MainUI extends JFrame {
   public MainUI(Sudoku sudoku) {
     this.sudoku = sudoku;
     solver = sudoku.getSolver();
+    
   }
   
   private void init() {
     gamePanel = new GamePanel(this);
     buttonPanel = new ButtonPanel(this);
     
-    setTitle(sudoku.getDimensions() + " x " + sudoku.getDimensions() + " Sudoku");
-    setSize(500,400);
+    dimension = sudoku.getDimensions();
+    setTitle(dimension + " x " + dimension + " Sudoku");
+    setSize(400,400);
     setLocationRelativeTo(null);
     setDefaultCloseOperation(EXIT_ON_CLOSE);
 

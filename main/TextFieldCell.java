@@ -7,13 +7,10 @@ import javax.swing.text.BadLocationException;
 
 public class TextFieldCell extends JTextField {
   
-  protected static int cellHeight = 1;
-  protected static int cellWidth = 2;
-  
   final static Color  ERROR_COLOR = Color.PINK;
 
   public TextFieldCell(String text, int lengthLimit) throws BadLocationException {
-    super(new FixedTextField(text, lengthLimit), text, cellWidth);
+    super(new FixedTextField(text, lengthLimit), text, lengthLimit);
     //setVisible(true);
   }
 
