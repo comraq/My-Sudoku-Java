@@ -1,12 +1,13 @@
 package main;
 
-import java.awt.Dimension;
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
@@ -39,24 +40,42 @@ public class ButtonPanel extends JPanel {
     quitButton = new JButton("Quit");
     
     initLayout();
-    setPanelSize();
-    initGenerateButton();
-    initResetButton();
-    initCheckButton();
-    initHintButton();
-    initQuitButton(); 
+    addComponents();
     
-    setName("sudoku.buttonPanel"); 
+    setOpaque(true);
+    setBackground(new Color(250, 255, 0));    
+    
+    setName("main.buttonPanel"); 
   }  
   
   private void initLayout() {
-    layout = new BoxLayout(this, BoxLayout.Y_AXIS);
+    layout = new GridBagLayout();
     setLayout(layout);
   }
   
-  private void initGenerateButton() {
+  private void addComponents() {
+    GridBagConstraints con = new GridBagConstraints();
+    
+    con.gridx = 0;
+    con.gridy = 0;
+    initGenerateButton(con);
+    
+    con.insets = new Insets(BUTTON_HEIGHT/2, 0, 0, 0);
+    ++con.gridy;
+    initResetButton(con);
+    
+    ++con.gridy;
+    initCheckButton(con);
+    
+    ++con.gridy;
+    initHintButton(con);
+    
+    ++con.gridy;
+    initQuitButton(con);
+  }
+  
+  private void initGenerateButton(GridBagConstraints con) {
     assert generateButton != null;
-    generateButton.setAlignmentX(CENTER_ALIGNMENT);
     generateButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -64,15 +83,12 @@ public class ButtonPanel extends JPanel {
       }
     });
     generateButton.setName("sudoku.generate");
-    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/4)));
-    add(generateButton);
-    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/4)));
+    add(generateButton, con);
     ++buttonCount; 
   }
   
-  private void initResetButton() {
+  private void initResetButton(GridBagConstraints con) {
     assert resetButton != null;
-    resetButton.setAlignmentX(CENTER_ALIGNMENT);
     resetButton.setEnabled(false);
     resetButton.addActionListener(new ActionListener() {
       @Override
@@ -80,16 +96,13 @@ public class ButtonPanel extends JPanel {
         ui.reset();
       }
     });
-    resetButton.setName("sudoku.reset");
-    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/4)));
-    add(resetButton);
-    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/4)));
+    resetButton.setName("main.reset");
+    add(resetButton, con);
     ++buttonCount; 
   }
   
-  private void initCheckButton() {
+  private void initCheckButton(GridBagConstraints con) {
     assert checkButton != null;
-    checkButton.setAlignmentX(CENTER_ALIGNMENT);
     checkButton.setEnabled(false);
     checkButton.addActionListener(new ActionListener() {
       @Override
@@ -97,16 +110,13 @@ public class ButtonPanel extends JPanel {
         ui.check();
       }
     });
-    checkButton.setName("sudoku.check");
-    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/4)));
-    add(checkButton);
-    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/4)));
+    checkButton.setName("main.check");
+    add(checkButton, con);
     ++buttonCount; 
   }
 
-  private void initHintButton() {
+  private void initHintButton(GridBagConstraints con) {
     assert hintButton != null;
-    hintButton.setAlignmentX(CENTER_ALIGNMENT);
     hintButton.setEnabled(false);
     hintButton.addActionListener(new ActionListener() {
       @Override
@@ -114,30 +124,21 @@ public class ButtonPanel extends JPanel {
         ui.hint();
       }
     });
-    hintButton.setName("sudoku.hint");
-    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/4)));
-    add(hintButton);
-    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/4)));
+    hintButton.setName("main.hint");
+    add(hintButton, con);
     ++buttonCount; 
   }
   
-  private void initQuitButton() {
+  private void initQuitButton(GridBagConstraints con) {
     assert quitButton != null;
-    quitButton.setAlignmentX(CENTER_ALIGNMENT);
     quitButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
         System.exit(0);
       }
     });
-    quitButton.setName("sudoku.quit");
-    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/4)));
-    add(quitButton);
-    add(Box.createRigidArea(new Dimension(BUTTON_WIDTH, BUTTON_HEIGHT/4)));
+    quitButton.setName("main.quit");
+    add(quitButton, con);
     ++buttonCount; 
-  }
-  
-  private void setPanelSize() {
-    setSize(BUTTON_WIDTH, BUTTON_HEIGHT * 2 * buttonCount);
   }
 }

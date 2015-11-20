@@ -256,28 +256,6 @@ public class Solver {
     return solution;
   }
   
-  public Solver stringToCells(List<Cell> cells, String grid) {
-    String s_val = "";
-    int cListIndex = 0;
-    for (char c : grid.toCharArray()) {
-      if (sudoku.getDigits().contains(Character.getNumericValue(c))) {
-        s_val += c;
-      } else if (c == ' ') {
-        cells.get(cListIndex).getValues().clear();
-        if (s_val != "") {
-          cells.get(cListIndex).getValues().add(Integer.parseInt(s_val));
-        }
-        s_val = "";
-        ++cListIndex;
-      }
-    }
-    cells.get(cListIndex).getValues().clear();
-    if (s_val != "") {
-      cells.get(cListIndex).getValues().add(Integer.parseInt(s_val));
-    }  
-    return this;
-  }
-  
   public List<Cell> stringToCells(String grid) {
     List<Cell> cList = sudoku.initCells();
     String s_val = "";
@@ -301,6 +279,34 @@ public class Solver {
     return cList;
   }
   
+  public void setVerbose(boolean verbose) {
+    this.verbose = verbose;
+  }
+  
+  @Deprecated
+  public Solver stringToCells(List<Cell> cells, String grid) {
+    String s_val = "";
+    int cListIndex = 0;
+    for (char c : grid.toCharArray()) {
+      if (sudoku.getDigits().contains(Character.getNumericValue(c))) {
+        s_val += c;
+      } else if (c == ' ') {
+        cells.get(cListIndex).getValues().clear();
+        if (s_val != "") {
+          cells.get(cListIndex).getValues().add(Integer.parseInt(s_val));
+        }
+        s_val = "";
+        ++cListIndex;
+      }
+    }
+    cells.get(cListIndex).getValues().clear();
+    if (s_val != "") {
+      cells.get(cListIndex).getValues().add(Integer.parseInt(s_val));
+    }  
+    return this;
+  }
+  
+  @Deprecated
   private String cellsToString(List<Cell> cells) {
     String grid = "";
     for (Cell cell : cells) {
@@ -314,10 +320,6 @@ public class Solver {
     return grid.substring(0, grid.length() - 1);
   }
   
-  public void setVerbose(boolean verbose) {
-    this.verbose = verbose;
-  }
-
   @Deprecated
   public Solver withSudoku(Sudoku sudoku) {
     this.sudoku = sudoku;

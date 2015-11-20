@@ -1,5 +1,7 @@
 package main;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.LayoutManager;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -7,16 +9,16 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import javax.swing.BoxLayout;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.text.BadLocationException;
 
 public class MainUI extends JFrame {
 
   private Sudoku sudoku;
   private Solver solver;
-  private JPanel buttonPanel, gamePanel;  
+  private ButtonPanel buttonPanel;
+  private GamePanel gamePanel;  
   private LayoutManager layout;
   
   private int dimension;
@@ -36,16 +38,15 @@ public class MainUI extends JFrame {
   public MainUI(Sudoku sudoku) {
     this.sudoku = sudoku;
     solver = sudoku.getSolver();
-    
   }
   
   private void init() {
-    gamePanel = new GamePanel(this);
+    gamePanel = new GamePanel(sudoku);
     buttonPanel = new ButtonPanel(this);
     
     dimension = sudoku.getDimensions();
     setTitle(dimension + " x " + dimension + " Sudoku");
-    setSize(400,400);
+    setSize(1300,700);
     setLocationRelativeTo(null);
     setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -56,13 +57,21 @@ public class MainUI extends JFrame {
   }
   
   private void initLayout() {
-    layout = new BoxLayout(getContentPane(), BoxLayout.X_AXIS);
+    layout = new GridBagLayout();
     setLayout(layout);
   }
   
   private void addComponents() {
-    add(gamePanel);
-    add(buttonPanel);    
+    GridBagConstraints con = new GridBagConstraints();
+    con.gridx = 0;
+    con.weightx = 0.9;
+    con.weighty = 1.0;
+    con.fill = GridBagConstraints.BOTH;
+    add(gamePanel, con);
+    
+    ++con.gridx;
+    con.weightx = 0.1;
+    add(buttonPanel, con);    
   }
   
   public void start() throws CloneNotSupportedException {
@@ -93,13 +102,10 @@ public class MainUI extends JFrame {
         } else if (input.contains("m")) {
           sudoku.setSolution(solver.generate('m'));
         } else if (input.contains("1")) {
-          sudoku.setSolution(new Solution(sudoku));
           sudoku.getSolution().setCells(solver.stringToCells(sudoku.getGrid("test")));
         } else if (input.contains("2")) {
-          sudoku.setSolution(new Solution(sudoku));
           sudoku.getSolution().setCells(solver.stringToCells(sudoku.getGrid("multi")));
         } else {
-          sudoku.setSolution(new Solution(sudoku));
           sudoku.getSolution().setCells(solver.stringToCells(sudoku.getGrid("blank")));          
         }
         display();
@@ -179,9 +185,24 @@ public class MainUI extends JFrame {
     //delay();
   }
   
-  
   protected void generate() {
+    try {
+      sudoku.setSolution(solver.generate('h'));
+      List<Cell> cells = sudoku.getSolution().getCells();
+      for (int i = 0; i < cells.size(); ++i) {
+        TextFieldCell textField = gamePanel.getTextCells().get(i);
+        textField.clearText();
+        if (!cells.get(i).getValues().isEmpty()) {
+          textField.insertString(Integer.toString(cells.get(i).getValues().get(0)));
+        }
+      }
+    } catch (CloneNotSupportedException e) {
+      System.err.println("Error generating sudoku.");
+    } catch (BadLocationException e) {
+      System.err.println("Bad offset for inserted text.");
+    }
     
+
   }
   
   protected void reset() {
