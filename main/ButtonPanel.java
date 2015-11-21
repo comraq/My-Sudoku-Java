@@ -74,6 +74,13 @@ public class ButtonPanel extends JPanel {
     initQuitButton(con);
   }
   
+  protected void updateButtons() {
+    //TODO: Add enumerated states to Sudoku and update buttons according to the appropriate state which the game is currently in
+    resetButton.setEnabled(true);
+    checkButton.setEnabled(true);
+    hintButton.setEnabled(true);
+  }
+  
   private void initGenerateButton(GridBagConstraints con) {
     assert generateButton != null;
     generateButton.addActionListener(new ActionListener() {

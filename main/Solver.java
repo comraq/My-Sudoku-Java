@@ -12,12 +12,11 @@ public class Solver {
   private boolean generating;
   private boolean verbose;
   private Solution multiSolution;
-  
-  //private int solveCount = 0;
-  //private int multiValCount = 0;
+  private List<Integer> genValues;
   
   public Solver(Sudoku sudoku) {
     this.sudoku = sudoku;
+    genValues = new ArrayList<Integer>();
     multiSolution = null;
     verbose = false;
     generating = false;
@@ -217,6 +216,7 @@ public class Solver {
       System.out.println("Finished producing a sudoku board");
       System.out.flush();
     }
+    setGenValues(solution); //Copying the list of values into genValues for answer checking 
     List<Integer> randSquares = new ArrayList<Integer>(sudoku.getSquares());
     while (randSquares.size() > minStart)  {
       Integer square = randSquares.get(ThreadLocalRandom.current().nextInt(0, randSquares.size()));
@@ -304,6 +304,17 @@ public class Solver {
       cells.get(cListIndex).getValues().add(Integer.parseInt(s_val));
     }  
     return this;
+  }
+  
+  private void setGenValues(Solution solution) {
+    genValues.clear();
+    for (Cell cell : solution.getCells()) {
+      genValues.add(cell.getValues().get(0));
+    }
+  }
+  
+  public List<Integer> getGenValues() {
+    return genValues;
   }
   
   @Deprecated

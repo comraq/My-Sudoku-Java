@@ -194,6 +194,7 @@ public class MainUI extends JFrame {
         textField.clearText();
         if (!cells.get(i).getValues().isEmpty()) {
           textField.insertString(Integer.toString(cells.get(i).getValues().get(0)));
+          textField.setEditable(false);
         }
       }
     } catch (CloneNotSupportedException e) {
@@ -201,12 +202,24 @@ public class MainUI extends JFrame {
     } catch (BadLocationException e) {
       System.err.println("Bad offset for inserted text.");
     }
-    
+    buttonPanel.updateButtons();
 
   }
   
   protected void reset() {
-    
+    try {
+      if (sudoku.getSolution() != null) {
+        List<Cell> cells = sudoku.getSolution().getCells();
+        for (int i = 0; i < cells.size(); ++i) {
+          if (cells.get(i).getValues().isEmpty()) {
+            gamePanel.getTextCells().get(i).clearText();
+          }
+        }
+      }
+    } catch (BadLocationException e) {
+      System.err.println("Bad offset for inserted text.");
+    }
+    buttonPanel.updateButtons();
   }
 
   protected void check() {
