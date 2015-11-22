@@ -18,13 +18,13 @@ public class GamePanel extends JPanel {
   private LayoutManager layout;
   private Sudoku sudoku;
   private int dimensions;
-  private Map<Integer, TextFieldCell> textFields;
+  private Map<Integer, TextFieldCell> textCells;
   
   public GamePanel(Sudoku sudoku) {
     this.sudoku = sudoku;
     dimensions = sudoku.getDimensions();
     cellLengthLimit = (dimensions > 3) ? 2 : 1;
-    textFields = new HashMap<Integer, TextFieldCell>();
+    textCells = new HashMap<Integer, TextFieldCell>();
     initialize();
     sudoku.getSudokuInteractor().setGamePanel(this);
     setVisible(true);
@@ -72,12 +72,12 @@ public class GamePanel extends JPanel {
     
     for (int r = 0; r < dimensions; ++r) {
       for (int c = 0; c < dimensions; ++c) {
-        TextFieldCell textField;
+        TextFieldCell textCell;
         try {
-          textField = new TextFieldCell(new FixedTextField(sudoku, "", cellLengthLimit), cellLengthLimit);
-          textFields.put((int)square + r*(int)Math.pow(dimensions, 2) + c, textField);
-          panel.add(textField, con);
-          textField.setEditable(false);
+          textCell = new TextFieldCell(new FixedTextField(sudoku, "", cellLengthLimit), cellLengthLimit);
+          textCells.put((int)square + r*(int)Math.pow(dimensions, 2) + c, textCell);
+          panel.add(textCell, con);
+          textCell.setEditable(false);
         } catch (BadLocationException e) {
           System.err.println("Bad offset for inserted text.");
         }
@@ -88,8 +88,8 @@ public class GamePanel extends JPanel {
     }
   }
   
-  protected Map<Integer, TextFieldCell> getTextFields() {
-    return textFields;
+  protected Map<Integer, TextFieldCell> getTextCells() {
+    return textCells;
   }
   
   private void initLayout() {

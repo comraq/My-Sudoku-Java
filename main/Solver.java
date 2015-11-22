@@ -216,7 +216,6 @@ public class Solver {
       System.out.println("Finished producing a sudoku board");
       System.out.flush();
     }
-    setGenValues(solution); //Copying the list of values into genValues for answer checking 
     List<Integer> randSquares = new ArrayList<Integer>(sudoku.getSquares());
     while (randSquares.size() > minStart)  {
       Integer square = randSquares.get(ThreadLocalRandom.current().nextInt(0, randSquares.size()));
@@ -235,7 +234,7 @@ public class Solver {
       do {
         tempSolution = checkSolve(solution.clone());
         if (tempSolution.getMultiVal() != 0) {
-          solution.getCells().get(tempSolution.getMultiSquare()).setValue(genValues.get(tempSolution.getMultiSquare()));//tempSolution.getMultiVal());
+          solution.getCells().get(tempSolution.getMultiSquare()).setValue(tempSolution.getMultiVal());
           if (verbose) {
             System.out.format("Adding %d to square %s.\n", tempSolution.getMultiVal(), solution.getCells().get(tempSolution.getMultiSquare()).getName());
             System.out.flush();
@@ -248,6 +247,7 @@ public class Solver {
           }
         }
       } while (tempSolution.getMultiVal() != 0);
+      setGenValues(tempSolution); //Copying the list of values into genValues for answer checking 
     }
     if (verbose) {
       System.out.format("Generated sudoku with %d number of given squares.\n", (addedS + minStart));

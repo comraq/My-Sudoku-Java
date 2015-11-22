@@ -50,7 +50,7 @@ public class ButtonPanel extends JPanel implements Observer {
     addComponents();
     
     setOpaque(true);
-    setBackground(new Color(250, 255, 0));    
+    setBackground(new Color(250, 255, 0));
     
     setName("main.buttonPanel"); 
   }  
@@ -92,7 +92,7 @@ public class ButtonPanel extends JPanel implements Observer {
       resetButton.setEnabled(true);
       checkButton.setEnabled(true);
       hintButton.setEnabled(true);
-    } else {
+    } else if (state == SudokuState.SOLVED){
       resetButton.setEnabled(true);
       checkButton.setEnabled(false);
       hintButton.setEnabled(false);

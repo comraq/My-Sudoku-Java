@@ -1,5 +1,6 @@
 package main;
 
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.LayoutManager;
@@ -7,18 +8,23 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.text.BadLocationException;
+import javax.swing.border.Border;
 
-public class MainUI extends JFrame {
+public class MainUI extends JFrame implements Observer {
 
   private Sudoku sudoku;
   private Solver solver;
   private ButtonPanel buttonPanel;
-  private GamePanel gamePanel;  
+  private GamePanel gamePanel; 
+  private JTextField statusField;
   private LayoutManager layout;
   
   private int dimension;
@@ -44,6 +50,7 @@ public class MainUI extends JFrame {
   private void init() {
     gamePanel = new GamePanel(sudoku);    
     buttonPanel = new ButtonPanel(sudoku);
+    initStatusField();
     
     dimension = sudoku.getDimensions();
     setTitle(dimension + " x " + dimension + " Sudoku");
@@ -54,7 +61,21 @@ public class MainUI extends JFrame {
     initLayout();
     addComponents();
     
+    sudoku.getSudokuInteractor().addObserver(this);
     setName("sudoku.mainUI"); 
+  }
+  
+  private void initStatusField() {
+    statusField = new JTextField("");
+    statusField.setEditable(false);
+    statusField.setBackground(new Color(222, 255, 222));
+    statusField.setHorizontalAlignment(JTextField.CENTER);
+    
+    Border compound = BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder());
+    statusField.setBorder(compound);
+    
+    statusField.setName("sudoku.statusField");
+    update(null, null);
   }
   
   private void initLayout() {
@@ -65,14 +86,28 @@ public class MainUI extends JFrame {
   private void addComponents() {
     GridBagConstraints con = new GridBagConstraints();
     con.gridx = 0;
+    con.gridy = 0;
     con.weightx = 0.9;
     con.weighty = 1.0;
+    con.gridheight = 2;
     con.fill = GridBagConstraints.BOTH;
     add(gamePanel, con);
     
     ++con.gridx;
     con.weightx = 0.1;
+    con.weighty = 0.1;
+    con.gridheight = 1;
+    add(statusField, con);
+    
+    ++con.gridy;
+    con.weighty = 0.9;
     add(buttonPanel, con);    
+  }
+  
+
+  @Override
+  public void update(Observable arg0, Object arg1) {
+    statusField.setText(sudoku.getSudokuInteractor().getCurrentState().message());
   }
   
   public void start() throws CloneNotSupportedException {

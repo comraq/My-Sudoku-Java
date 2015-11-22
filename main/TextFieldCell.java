@@ -10,6 +10,8 @@ public class TextFieldCell extends JTextField {
   
   final static Color INCORRECT = Color.PINK;
   final static Color CORRECT = Color.GREEN;
+  final static Color UNCHECK = Color.WHITE;
+  final static Color HINT = Color.YELLOW;
   
   private FixedTextField textField;
 
@@ -22,8 +24,9 @@ public class TextFieldCell extends JTextField {
     textField.insertString(0, text, new SimpleAttributeSet());
   }
   
-  public void clearText() throws BadLocationException {
+  public TextFieldCell clearText() throws BadLocationException {
     textField.remove(0, textField.getLength());
+    return this;
   }
   
   public void isCorrect() {
@@ -32,5 +35,13 @@ public class TextFieldCell extends JTextField {
   
   public void isIncorrect() {
     setBackground(INCORRECT);
+  }
+  
+  public void uncheck() {
+    setBackground(UNCHECK);
+  }
+  
+  public void hint() {
+    setBackground(HINT);
   }
 }
