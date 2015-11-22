@@ -8,7 +8,8 @@ import javax.swing.text.SimpleAttributeSet;
 
 public class TextFieldCell extends JTextField {
   
-  final static Color  ERROR_COLOR = Color.PINK;
+  final static Color INCORRECT = Color.PINK;
+  final static Color CORRECT = Color.GREEN;
   
   private FixedTextField textField;
 
@@ -17,11 +18,19 @@ public class TextFieldCell extends JTextField {
     this.textField = textField;
   }
   
-  protected void insertString(String text) throws BadLocationException {
+  public void insertString(String text) throws BadLocationException {
     textField.insertString(0, text, new SimpleAttributeSet());
   }
   
-  protected void clearText() throws BadLocationException {
+  public void clearText() throws BadLocationException {
     textField.remove(0, textField.getLength());
+  }
+  
+  public void isCorrect() {
+    setBackground(CORRECT);
+  }
+  
+  public void isIncorrect() {
+    setBackground(INCORRECT);
   }
 }

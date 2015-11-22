@@ -3,11 +3,8 @@ package main;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.LayoutManager;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
@@ -20,16 +17,16 @@ public class GamePanel extends JPanel {
   
   private LayoutManager layout;
   private Sudoku sudoku;
-  private int dimension;
-  
-  private Map<Integer, TextFieldCell> textCells;
+  private int dimensions;
+  private Map<Integer, TextFieldCell> textFields;
   
   public GamePanel(Sudoku sudoku) {
     this.sudoku = sudoku;
-    dimension = sudoku.getDimensions();
-    cellLengthLimit = (dimension > 3) ? 2 : 1;
-    textCells = new HashMap<Integer, TextFieldCell>();
+    dimensions = sudoku.getDimensions();
+    cellLengthLimit = (dimensions > 3) ? 2 : 1;
+    textFields = new HashMap<Integer, TextFieldCell>();
     initialize();
+    sudoku.getSudokuInteractor().setGamePanel(this);
     setVisible(true);
   }
   
@@ -48,14 +45,14 @@ public class GamePanel extends JPanel {
     con.weighty = 1;
     con.fill = GridBagConstraints.BOTH;
     
-    for (int r = 0; r < dimension; ++r) {
-      for (int c = 0; c < dimension; ++c) {
+    for (int r = 0; r < dimensions; ++r) {
+      for (int c = 0; c < dimensions; ++c) {
         JPanel panel = new JPanel();
         panel.setBackground(new Color(0, 255, 0));
         panel.setBorder(BorderFactory.createLoweredBevelBorder());
         panel.setLayout(new GridBagLayout());
         add(panel, con);
-        addTextFieldCells(r*(int)Math.pow(dimension, 3) + c*dimension, panel);
+        addTextFieldCells(r*(int)Math.pow(dimensions, 3) + c*dimensions, panel);
         panel.setVisible(true);
         ++con.gridx;
         con.gridx += 2;
@@ -73,13 +70,14 @@ public class GamePanel extends JPanel {
     con.weighty = 1;
     con.fill = GridBagConstraints.BOTH;
     
-    for (int r = 0; r < dimension; ++r) {
-      for (int c = 0; c < dimension; ++c) {
-        TextFieldCell textCell;
+    for (int r = 0; r < dimensions; ++r) {
+      for (int c = 0; c < dimensions; ++c) {
+        TextFieldCell textField;
         try {
-          textCell = new TextFieldCell(new FixedTextField("", cellLengthLimit), cellLengthLimit);
-          textCells.put((int)square + r*(int)Math.pow(dimension, 2) + c, textCell);
-          panel.add(textCell, con);
+          textField = new TextFieldCell(new FixedTextField(sudoku, "", cellLengthLimit), cellLengthLimit);
+          textFields.put((int)square + r*(int)Math.pow(dimensions, 2) + c, textField);
+          panel.add(textField, con);
+          textField.setEditable(false);
         } catch (BadLocationException e) {
           System.err.println("Bad offset for inserted text.");
         }
@@ -90,8 +88,8 @@ public class GamePanel extends JPanel {
     }
   }
   
-  protected Map<Integer, TextFieldCell> getTextCells() {
-    return textCells;
+  protected Map<Integer, TextFieldCell> getTextFields() {
+    return textFields;
   }
   
   private void initLayout() {

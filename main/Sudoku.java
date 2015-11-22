@@ -13,6 +13,8 @@ public class Sudoku {
   private final List<List<Integer>> peers;
   private final Solver solver;
   private final MainUI ui;
+  private final SudokuInteractor interactor;
+  private final SudokuDocumentListener documentListener;
   
   private int dimensions;
   private List<Integer> squares;
@@ -35,6 +37,8 @@ public class Sudoku {
     peers = new ArrayList<List<Integer>>();
     solver = new Solver(this);
     ui = new MainUI(this);
+    interactor = new SudokuInteractor(this);
+    documentListener = new SudokuDocumentListener(interactor);
   }
   
   public Sudoku initialize() {
@@ -121,6 +125,14 @@ public class Sudoku {
   
   public MainUI getMainUI() {
     return ui;
+  }
+  
+  public SudokuInteractor getSudokuInteractor() {
+    return interactor;
+  }
+  
+  public SudokuDocumentListener getDocumentListener() {
+    return documentListener;
   }
   
   public String getGrid(String grid) {

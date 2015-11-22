@@ -1,5 +1,7 @@
 package main;
 
+import java.awt.event.KeyListener;
+
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
@@ -9,10 +11,11 @@ public class FixedTextField extends PlainDocument {
 
   private int lengthLimit;
 
-  public FixedTextField(String text, int lengthLimit) throws BadLocationException {
+  public FixedTextField(Sudoku sudoku, String text, int lengthLimit) throws BadLocationException {
     super();
     this.lengthLimit = lengthLimit; 
     insertString(0, text, new SimpleAttributeSet());
+    addDocumentListener(sudoku.getDocumentListener());
   }
 
   @Override

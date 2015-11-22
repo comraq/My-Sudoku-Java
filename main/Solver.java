@@ -235,7 +235,7 @@ public class Solver {
       do {
         tempSolution = checkSolve(solution.clone());
         if (tempSolution.getMultiVal() != 0) {
-          solution.getCells().get(tempSolution.getMultiSquare()).setValue(tempSolution.getMultiVal());
+          solution.getCells().get(tempSolution.getMultiSquare()).setValue(genValues.get(tempSolution.getMultiSquare()));//tempSolution.getMultiVal());
           if (verbose) {
             System.out.format("Adding %d to square %s.\n", tempSolution.getMultiVal(), solution.getCells().get(tempSolution.getMultiSquare()).getName());
             System.out.flush();

@@ -38,11 +38,12 @@ public class MainUI extends JFrame {
   public MainUI(Sudoku sudoku) {
     this.sudoku = sudoku;
     solver = sudoku.getSolver();
+
   }
   
   private void init() {
-    gamePanel = new GamePanel(sudoku);
-    buttonPanel = new ButtonPanel(this);
+    gamePanel = new GamePanel(sudoku);    
+    buttonPanel = new ButtonPanel(sudoku);
     
     dimension = sudoku.getDimensions();
     setTitle(dimension + " x " + dimension + " Sudoku");
@@ -184,52 +185,7 @@ public class MainUI extends JFrame {
     System.out.flush();
     //delay();
   }
-  
-  protected void generate() {
-    try {
-      sudoku.setSolution(solver.generate('h'));
-      List<Cell> cells = sudoku.getSolution().getCells();
-      for (int i = 0; i < cells.size(); ++i) {
-        TextFieldCell textField = gamePanel.getTextCells().get(i);
-        textField.clearText();
-        if (!cells.get(i).getValues().isEmpty()) {
-          textField.insertString(Integer.toString(cells.get(i).getValues().get(0)));
-          textField.setEditable(false);
-        }
-      }
-    } catch (CloneNotSupportedException e) {
-      System.err.println("Error generating sudoku.");
-    } catch (BadLocationException e) {
-      System.err.println("Bad offset for inserted text.");
-    }
-    buttonPanel.updateButtons();
 
-  }
-  
-  protected void reset() {
-    try {
-      if (sudoku.getSolution() != null) {
-        List<Cell> cells = sudoku.getSolution().getCells();
-        for (int i = 0; i < cells.size(); ++i) {
-          if (cells.get(i).getValues().isEmpty()) {
-            gamePanel.getTextCells().get(i).clearText();
-          }
-        }
-      }
-    } catch (BadLocationException e) {
-      System.err.println("Bad offset for inserted text.");
-    }
-    buttonPanel.updateButtons();
-  }
-
-  protected void check() {
-    
-  }
-
-  protected void hint() {
-    
-  }
-  
   private void delay() {
     try {
       TimeUnit.MILLISECONDS.sleep(200);
@@ -240,6 +196,10 @@ public class MainUI extends JFrame {
   
   public Sudoku getSudoku() {
     return sudoku;  
+  }
+  
+  public GamePanel getGamePanel() {
+    return gamePanel;
   }
   
   public <T> String joinList(List<T> list, String s) {

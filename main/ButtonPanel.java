@@ -7,18 +7,23 @@ import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Observable;
+import java.util.Observer;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
-public class ButtonPanel extends JPanel {
+import main.SudokuInteractor.SudokuState;
+
+public class ButtonPanel extends JPanel implements Observer {
 
   private static final int BUTTON_WIDTH = 96;
   private static final int BUTTON_HEIGHT = 54;
   private int buttonCount;
   private LayoutManager layout;
   
-  private MainUI ui;
+  private Sudoku sudoku;
+  private SudokuInteractor interactor;
   
   private JButton generateButton;
   private JButton resetButton;
@@ -26,8 +31,10 @@ public class ButtonPanel extends JPanel {
   private JButton hintButton;
   private JButton quitButton;
   
-  public ButtonPanel(MainUI ui) {
-    this.ui = ui;
+  public ButtonPanel(Sudoku sudoku) {
+    this.sudoku = sudoku;
+    interactor = sudoku.getSudokuInteractor();
+    interactor.addObserver(this);
     buttonCount = 0;
     initialize();
   }
@@ -74,19 +81,30 @@ public class ButtonPanel extends JPanel {
     initQuitButton(con);
   }
   
-  protected void updateButtons() {
-    //TODO: Add enumerated states to Sudoku and update buttons according to the appropriate state which the game is currently in
-    resetButton.setEnabled(true);
-    checkButton.setEnabled(true);
-    hintButton.setEnabled(true);
+  @Override
+  public void update(Observable o, Object arg) {
+    SudokuState state = interactor.getCurrentState();
+    if (state == SudokuState.GENERATED) {
+      resetButton.setEnabled(false);
+      checkButton.setEnabled(false);
+      hintButton.setEnabled(true);
+    } else if (state == SudokuState.PLAYING) {
+      resetButton.setEnabled(true);
+      checkButton.setEnabled(true);
+      hintButton.setEnabled(true);
+    } else {
+      resetButton.setEnabled(true);
+      checkButton.setEnabled(false);
+      hintButton.setEnabled(false);
+    }
   }
-  
+      
   private void initGenerateButton(GridBagConstraints con) {
     assert generateButton != null;
     generateButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        ui.generate();
+        interactor.generate();
       }
     });
     generateButton.setName("sudoku.generate");
@@ -100,7 +118,7 @@ public class ButtonPanel extends JPanel {
     resetButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        ui.reset();
+        interactor.reset();
       }
     });
     resetButton.setName("main.reset");
@@ -114,7 +132,7 @@ public class ButtonPanel extends JPanel {
     checkButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        ui.check();
+        interactor.check();
       }
     });
     checkButton.setName("main.check");
@@ -128,7 +146,7 @@ public class ButtonPanel extends JPanel {
     hintButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        ui.hint();
+        interactor.hint();
       }
     });
     hintButton.setName("main.hint");
