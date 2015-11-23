@@ -11,9 +11,8 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.text.BadLocationException;
 
+@SuppressWarnings("serial")
 public class GamePanel extends JPanel {
-
-  protected final int cellLengthLimit;
   
   private LayoutManager layout;
   private Sudoku sudoku;
@@ -22,15 +21,14 @@ public class GamePanel extends JPanel {
   
   public GamePanel(Sudoku sudoku) {
     this.sudoku = sudoku;
-    dimensions = sudoku.getDimensions();
-    cellLengthLimit = (dimensions > 3) ? 2 : 1;
     textCells = new HashMap<Integer, TextFieldCell>();
     initialize();
     sudoku.getSudokuInteractor().setGamePanel(this);
     setVisible(true);
   }
   
-  private void initialize() {
+  public void initialize() {
+    dimensions = sudoku.getDimensions();
     initLayout();
     addComponents();
     
@@ -70,6 +68,7 @@ public class GamePanel extends JPanel {
     con.weighty = 1;
     con.fill = GridBagConstraints.BOTH;
     
+    int cellLengthLimit = (dimensions > 3) ? 2 : 1;
     for (int r = 0; r < dimensions; ++r) {
       for (int c = 0; c < dimensions; ++c) {
         TextFieldCell textCell;

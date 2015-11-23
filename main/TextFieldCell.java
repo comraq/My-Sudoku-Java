@@ -6,12 +6,14 @@ import javax.swing.JTextField;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.SimpleAttributeSet;
 
+@SuppressWarnings("serial")
 public class TextFieldCell extends JTextField {
   
   final static Color INCORRECT = Color.PINK;
   final static Color CORRECT = Color.GREEN;
   final static Color UNCHECK = Color.WHITE;
   final static Color HINT = Color.YELLOW;
+  final static Color DISABLE = new Color(240, 240, 240);
   
   private FixedTextField textField;
 
@@ -43,5 +45,10 @@ public class TextFieldCell extends JTextField {
   
   public void hint() {
     setBackground(HINT);
+  }
+  
+  public void disable() {
+    setEditable(false);
+    setBackground(DISABLE);
   }
 }

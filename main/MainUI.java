@@ -18,6 +18,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
+@SuppressWarnings("serial")
 public class MainUI extends JFrame implements Observer {
 
   private Sudoku sudoku;
@@ -44,7 +45,6 @@ public class MainUI extends JFrame implements Observer {
   public MainUI(Sudoku sudoku) {
     this.sudoku = sudoku;
     solver = sudoku.getSolver();
-
   }
   
   void init() {

@@ -1,18 +1,13 @@
 package main;
 
-import java.awt.GridBagConstraints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.concurrent.ThreadLocalRandom;
 
-import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -31,6 +26,7 @@ public class SudokuInteractor extends Observable {
   private JRadioButton[] radioButtons;
   private ButtonGroup buttonGroup;
   private JPanel generatePanel;
+  
   public SudokuInteractor(Sudoku sudoku) {
     this.sudoku = sudoku;
     solver = sudoku.getSolver();
@@ -39,7 +35,8 @@ public class SudokuInteractor extends Observable {
   
   public enum SudokuState {
     INIT("Press Generate to Select a Sudoku"),
-    GENERATED("A New Sudoku"),
+    GENERATED("Generated a New Sudoku"),
+    RESETTED("Here is the Original Sudoku"),
     PLAYING("Playing"),
     SOLVED("All Solved!");
     
@@ -66,53 +63,24 @@ public class SudokuInteractor extends Observable {
   }
   
   public void generate() {
-
     if ((currentState == SudokuState.INIT) || (warningDialog("Generate?") == JOptionPane.YES_OPTION)) {
-      try {
-        /*
-        sudoku.initialize(launchGenerateDialog());
-        sudoku.getMainUI().init();
-        sudoku.getMainUI().setVisible(true);
-        */
-        sudoku.setSolution(solver.generate('h'));
-        List<Cell> cells = sudoku.getSolution().getCells();
-        for (int i = 0; i < cells.size(); ++i) {
-          TextFieldCell textCell = gamePanel.getTextCells().get(i);
-          textCell.clearText();
-          if (!cells.get(i).getValues().isEmpty()) {
-            textCell.insertString(Integer.toString(cells.get(i).getValues().get(0)));
-            textCell.setEditable(false);
-          } else {
-            textCell.setEditable(true);
-          }
-        }
-      } catch (CloneNotSupportedException e) {
-        System.err.println("Error generating sudoku.");
-      } catch (BadLocationException e) {
-        System.err.println("Bad offset for inserted text.");
+      int newDimensions = launchGenerateDialog();
+      if (newDimensions != sudoku.getDimensions()) {
+        sudoku.initialize(newDimensions);
+        gamePanel.removeAll();
+        gamePanel.initialize();
+        gamePanel.revalidate();
       }
-      hintSquares = new ArrayList<Integer>(sudoku.getSquares());
-      updateState(SudokuState.GENERATED);
-    }
+      generateHelper();
+    }  
   }
   
   public void reset() {
     if (warningDialog("Reset?") == JOptionPane.YES_OPTION) {
-      try {
-        List<Cell> cells = sudoku.getSolution().getCells();
-        for (int i = 0; i < cells.size(); ++i) {
-          if (cells.get(i).getValues().isEmpty()) {
-            gamePanel.getTextCells().get(i).clearText().uncheck();
-          }
-        }
-      } catch (BadLocationException e) {
-        System.err.println("Bad offset for inserted text.");
-      }
-      hintSquares = new ArrayList<Integer>(sudoku.getSquares());
-      updateState(SudokuState.GENERATED);
+      resetHelper();
     }
   }
-
+ 
   public void check() {
     boolean solved = true;
     List<Integer> values = solver.getGenValues();
@@ -148,6 +116,44 @@ public class SudokuInteractor extends Observable {
     } catch (BadLocationException e) {
       System.err.println("Bad offset for inserted text.");
     }
+  } 
+  
+  private void generateHelper() {
+    try {
+      sudoku.setSolution(solver.generate('h'));
+      List<Cell> cells = sudoku.getSolution().getCells();
+      for (int i = 0; i < cells.size(); ++i) {
+        TextFieldCell textCell = gamePanel.getTextCells().get(i);
+        textCell.clearText();
+        if (!cells.get(i).getValues().isEmpty()) {
+          textCell.insertString(Integer.toString(cells.get(i).getValues().get(0)));
+          textCell.disable();
+        } else {
+          textCell.setEditable(true);
+        }
+      }
+    } catch (CloneNotSupportedException e) {
+      System.err.println("Error generating sudoku.");
+    } catch (BadLocationException e) {
+      System.err.println("Bad offset for inserted text.");
+    }
+    hintSquares = new ArrayList<Integer>(sudoku.getSquares());
+    updateState(SudokuState.GENERATED);
+  }
+  
+  private void resetHelper() {
+    try {
+      List<Cell> cells = sudoku.getSolution().getCells();
+      for (int i = 0; i < cells.size(); ++i) {
+        if (cells.get(i).getValues().isEmpty()) {
+          gamePanel.getTextCells().get(i).clearText().uncheck();
+        }
+      }
+    } catch (BadLocationException e) {
+      System.err.println("Bad offset for inserted text.");
+    }
+    hintSquares = new ArrayList<Integer>(sudoku.getSquares());
+    updateState(SudokuState.RESETTED);
   }
   
   private int warningDialog(String title) {
@@ -182,11 +188,6 @@ public class SudokuInteractor extends Observable {
     String[] next = {"Next"}; 
     JOptionPane.showOptionDialog(null, generatePanel, "Select Sudoku Size:", JOptionPane.PLAIN_MESSAGE, JOptionPane.PLAIN_MESSAGE, new ImageIcon(), next, next[0]);
     String command = buttonGroup.getSelection().getActionCommand();
-    if (command == "3") {
-      System.out.println("radiobuttons worked");
-    } else {
-      System.out.println("Selected dimensions 4");
-    }
     return Integer.parseInt(command);
   }
   

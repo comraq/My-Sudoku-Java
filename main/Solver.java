@@ -318,7 +318,7 @@ public class Solver {
   }
   
   @Deprecated
-  private String cellsToString(List<Cell> cells) {
+  public String cellsToString(List<Cell> cells) {
     String grid = "";
     for (Cell cell : cells) {
       if (cell.getValues().size() == 1) {

@@ -15,11 +15,10 @@ import javax.swing.JPanel;
 
 import main.SudokuInteractor.SudokuState;
 
+@SuppressWarnings("serial")
 public class ButtonPanel extends JPanel implements Observer {
 
-  private static final int BUTTON_WIDTH = 96;
-  private static final int BUTTON_HEIGHT = 54;
-  private int buttonCount;
+  private static final int BUTTON_GAP = 27;
   private LayoutManager layout;
   
   private Sudoku sudoku;
@@ -35,7 +34,6 @@ public class ButtonPanel extends JPanel implements Observer {
     this.sudoku = sudoku;
     interactor = sudoku.getSudokuInteractor();
     interactor.addObserver(this);
-    buttonCount = 0;
     initialize();
   }
 
@@ -67,7 +65,7 @@ public class ButtonPanel extends JPanel implements Observer {
     con.gridy = 0;
     initGenerateButton(con);
     
-    con.insets = new Insets(BUTTON_HEIGHT/2, 0, 0, 0);
+    con.insets = new Insets(BUTTON_GAP, 0, 0, 0);
     ++con.gridy;
     initResetButton(con);
     
@@ -84,7 +82,7 @@ public class ButtonPanel extends JPanel implements Observer {
   @Override
   public void update(Observable o, Object arg) {
     SudokuState state = interactor.getCurrentState();
-    if (state == SudokuState.GENERATED) {
+    if ((state == SudokuState.GENERATED) || (state == SudokuState.RESETTED)) {
       resetButton.setEnabled(false);
       checkButton.setEnabled(false);
       hintButton.setEnabled(true);
@@ -109,7 +107,6 @@ public class ButtonPanel extends JPanel implements Observer {
     });
     generateButton.setName("sudoku.generate");
     add(generateButton, con);
-    ++buttonCount; 
   }
   
   private void initResetButton(GridBagConstraints con) {
@@ -123,7 +120,6 @@ public class ButtonPanel extends JPanel implements Observer {
     });
     resetButton.setName("main.reset");
     add(resetButton, con);
-    ++buttonCount; 
   }
   
   private void initCheckButton(GridBagConstraints con) {
@@ -136,8 +132,7 @@ public class ButtonPanel extends JPanel implements Observer {
       }
     });
     checkButton.setName("main.check");
-    add(checkButton, con);
-    ++buttonCount; 
+    add(checkButton, con); 
   }
 
   private void initHintButton(GridBagConstraints con) {
@@ -151,7 +146,6 @@ public class ButtonPanel extends JPanel implements Observer {
     });
     hintButton.setName("main.hint");
     add(hintButton, con);
-    ++buttonCount; 
   }
   
   private void initQuitButton(GridBagConstraints con) {
@@ -164,6 +158,5 @@ public class ButtonPanel extends JPanel implements Observer {
     });
     quitButton.setName("main.quit");
     add(quitButton, con);
-    ++buttonCount; 
   }
 }
