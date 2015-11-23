@@ -47,7 +47,7 @@ public class MainUI extends JFrame implements Observer {
 
   }
   
-  private void init() {
+  void init() {
     gamePanel = new GamePanel(sudoku);    
     buttonPanel = new ButtonPanel(sudoku);
     initStatusField();

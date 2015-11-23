@@ -1,11 +1,21 @@
 package main;
 
+import java.awt.GridBagConstraints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.concurrent.ThreadLocalRandom;
 
+import javax.swing.AbstractButton;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.text.BadLocationException;
 
 public class SudokuInteractor extends Observable {
@@ -17,14 +27,19 @@ public class SudokuInteractor extends Observable {
   private SudokuState currentState = SudokuState.INIT;
   private List<Integer> hintSquares;
   
+  private final int numButtons = 2;
+  private JRadioButton[] radioButtons;
+  private ButtonGroup buttonGroup;
+  private JPanel generatePanel;
   public SudokuInteractor(Sudoku sudoku) {
     this.sudoku = sudoku;
     solver = sudoku.getSolver();
+    initGeneratePanel();
   }
   
   public enum SudokuState {
     INIT("Press Generate to Select a Sudoku"),
-    GENERATED("Generated a Sudoku"),
+    GENERATED("A New Sudoku"),
     PLAYING("Playing"),
     SOLVED("All Solved!");
     
@@ -51,41 +66,51 @@ public class SudokuInteractor extends Observable {
   }
   
   public void generate() {
-    try {
-      sudoku.setSolution(solver.generate('h'));
-      List<Cell> cells = sudoku.getSolution().getCells();
-      for (int i = 0; i < cells.size(); ++i) {
-        TextFieldCell textCell = gamePanel.getTextCells().get(i);
-        textCell.clearText();
-        if (!cells.get(i).getValues().isEmpty()) {
-          textCell.insertString(Integer.toString(cells.get(i).getValues().get(0)));
-          textCell.setEditable(false);
-        } else {
-          textCell.setEditable(true);
+
+    if ((currentState == SudokuState.INIT) || (warningDialog("Generate?") == JOptionPane.YES_OPTION)) {
+      try {
+        /*
+        sudoku.initialize(launchGenerateDialog());
+        sudoku.getMainUI().init();
+        sudoku.getMainUI().setVisible(true);
+        */
+        sudoku.setSolution(solver.generate('h'));
+        List<Cell> cells = sudoku.getSolution().getCells();
+        for (int i = 0; i < cells.size(); ++i) {
+          TextFieldCell textCell = gamePanel.getTextCells().get(i);
+          textCell.clearText();
+          if (!cells.get(i).getValues().isEmpty()) {
+            textCell.insertString(Integer.toString(cells.get(i).getValues().get(0)));
+            textCell.setEditable(false);
+          } else {
+            textCell.setEditable(true);
+          }
         }
+      } catch (CloneNotSupportedException e) {
+        System.err.println("Error generating sudoku.");
+      } catch (BadLocationException e) {
+        System.err.println("Bad offset for inserted text.");
       }
-    } catch (CloneNotSupportedException e) {
-      System.err.println("Error generating sudoku.");
-    } catch (BadLocationException e) {
-      System.err.println("Bad offset for inserted text.");
+      hintSquares = new ArrayList<Integer>(sudoku.getSquares());
+      updateState(SudokuState.GENERATED);
     }
-    hintSquares = new ArrayList<Integer>(sudoku.getSquares());
-    updateState(SudokuState.GENERATED);
   }
   
   public void reset() {
-    try {
-      List<Cell> cells = sudoku.getSolution().getCells();
-      for (int i = 0; i < cells.size(); ++i) {
-        if (cells.get(i).getValues().isEmpty()) {
-          gamePanel.getTextCells().get(i).clearText().uncheck();
+    if (warningDialog("Reset?") == JOptionPane.YES_OPTION) {
+      try {
+        List<Cell> cells = sudoku.getSolution().getCells();
+        for (int i = 0; i < cells.size(); ++i) {
+          if (cells.get(i).getValues().isEmpty()) {
+            gamePanel.getTextCells().get(i).clearText().uncheck();
+          }
         }
+      } catch (BadLocationException e) {
+        System.err.println("Bad offset for inserted text.");
       }
-    } catch (BadLocationException e) {
-      System.err.println("Bad offset for inserted text.");
+      hintSquares = new ArrayList<Integer>(sudoku.getSquares());
+      updateState(SudokuState.GENERATED);
     }
-    hintSquares = new ArrayList<Integer>(sudoku.getSquares());
-    updateState(SudokuState.GENERATED);
   }
 
   public void check() {
@@ -123,6 +148,46 @@ public class SudokuInteractor extends Observable {
     } catch (BadLocationException e) {
       System.err.println("Bad offset for inserted text.");
     }
+  }
+  
+  private int warningDialog(String title) {
+    String message = "";
+    if (title == "Generate?") {
+      message = "Are you sure you would like to forfeit the current Sudoku and generate a new one?";
+    } else if (title == "Reset?") {
+      message = "Are you sure you would like to reset the current Sudoku?";
+    }
+    return JOptionPane.showConfirmDialog(sudoku.getMainUI(), message, title, JOptionPane.YES_NO_OPTION);
+  }
+  
+  private void initGeneratePanel() {
+    generatePanel  = new JPanel();
+    radioButtons = new JRadioButton[numButtons];
+    buttonGroup = new ButtonGroup();
+
+    radioButtons[0] = new JRadioButton("3x3 - 81 Squares");
+    radioButtons[0].setActionCommand("3");
+
+    radioButtons[1] = new JRadioButton("4x4 - 256 Squares");
+    radioButtons[1].setActionCommand("4");
+    
+    for (int i = 0; i < numButtons; i++) {
+      buttonGroup.add(radioButtons[i]);
+      generatePanel.add(radioButtons[i]);
+    }
+  }
+  
+  private int launchGenerateDialog() {
+    radioButtons[0].setSelected(true);
+    String[] next = {"Next"}; 
+    JOptionPane.showOptionDialog(null, generatePanel, "Select Sudoku Size:", JOptionPane.PLAIN_MESSAGE, JOptionPane.PLAIN_MESSAGE, new ImageIcon(), next, next[0]);
+    String command = buttonGroup.getSelection().getActionCommand();
+    if (command == "3") {
+      System.out.println("radiobuttons worked");
+    } else {
+      System.out.println("Selected dimensions 4");
+    }
+    return Integer.parseInt(command);
   }
   
   public SudokuState getCurrentState() {
