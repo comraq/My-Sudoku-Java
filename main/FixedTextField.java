@@ -5,6 +5,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 import javax.swing.text.SimpleAttributeSet;
 
+@SuppressWarnings("serial")
 public class FixedTextField extends PlainDocument {
 
   private int lengthLimit;

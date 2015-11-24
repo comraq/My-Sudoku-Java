@@ -8,6 +8,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Solver {
   
+  public static final String BEGINNER = "Beginner";
+  public static final String CASUAL = "Casual";
+  public static final String CHALLENGE = "Challenge";
+  
   private Sudoku sudoku;
   private boolean generating;
   private boolean verbose;
@@ -189,17 +193,19 @@ public class Solver {
     return solution;
   }  
   
-  public Solution generate(char diff) throws CloneNotSupportedException {
+  public Solution generate(String diff) throws CloneNotSupportedException {
     generating = true;
     int minStart;
-    if (diff == 'h') {
+    boolean multi = false;
+    if (diff == CHALLENGE) {
       minStart = (int)Math.pow(sudoku.getDimensions(), 4)/4;
-    } else if (diff == 'e') {
+    } else if (diff == BEGINNER) {
       minStart = (int)Math.pow(sudoku.getDimensions(), 4)/2;
-    } else if (diff == 'm') {
-      minStart = (int)Math.pow(sudoku.getDimensions(), 4)/5;
-    } else {
+    } else if (diff == CASUAL) {
       minStart = (int)Math.pow(sudoku.getDimensions(), 4)/3;
+    } else {
+      minStart = (int)Math.pow(sudoku.getDimensions(), 4)/5;
+      multi = true;
     } 
     if (sudoku.getDimensions() > 3) {
       //For large sudokus, multi-solution checking requires too much memory and slows down the garbage collector
@@ -229,7 +235,7 @@ public class Solver {
     }
     //Check whether the generated Sudoku yields a unique solution, if not, add the square responsible for multiple solutions
     int addedS = 0;
-    if (diff != 'm') {
+    if (!multi) {
       Solution tempSolution;
       do {
         tempSolution = checkSolve(solution.clone());

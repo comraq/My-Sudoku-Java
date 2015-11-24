@@ -7,7 +7,6 @@ import java.util.Observable;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -70,8 +69,9 @@ public class SudokuInteractor extends Observable {
         gamePanel.removeAll();
         gamePanel.initialize();
         gamePanel.revalidate();
+        sudoku.getMainUI().setWindowTitle(newDimensions);
       }
-      generateHelper();
+      generateHelper(getDifficulty(newDimensions));
     }  
   }
   
@@ -81,6 +81,11 @@ public class SudokuInteractor extends Observable {
     }
   }
  
+  /**
+   * Checks current Sudoku and highlights squares as follows:
+   * Correct - Green
+   * InCorrect - Red
+   */  
   public void check() {
     boolean solved = true;
     List<Integer> values = solver.getGenValues();
@@ -99,7 +104,10 @@ public class SudokuInteractor extends Observable {
       updateState(SudokuState.SOLVED);
     }
   }
-
+  
+  /**
+   * Reveals the answer to a random square and highlight it in yellow
+   */
   public void hint() {
     try {
       Integer randS;
@@ -118,9 +126,78 @@ public class SudokuInteractor extends Observable {
     }
   } 
   
-  private void generateHelper() {
+  /**
+   * Asks the user to confirm whether to proceed resetting or generating a new Sudoku
+   */
+  private int warningDialog(String title) {
+    String message = "";
+    if (title == "Generate?") {
+      message = "Are you sure you would like to forfeit the current Sudoku and generate a new one?";
+    } else if (title == "Reset?") {
+      message = "Are you sure you would like to reset the current Sudoku?";
+    }
+    return JOptionPane.showConfirmDialog(sudoku.getMainUI(), message, title, JOptionPane.YES_NO_OPTION);
+  }
+  
+  /**
+   * Requests user for generated Sudoku size
+   */
+  private int launchGenerateDialog() {
+    radioButtons[0].setSelected(true);
+    String[] next = {"Next"}; 
+    JOptionPane.showOptionDialog(null, generatePanel, "Select Sudoku Size:", JOptionPane.PLAIN_MESSAGE, JOptionPane.PLAIN_MESSAGE, null, next, next[0]);
+    String command = buttonGroup.getSelection().getActionCommand();
+    return Integer.parseInt(command);
+  }
+  
+  /**
+   * Requests user for generated Sudoku difficulty
+   */
+  private String getDifficulty(int dimensions) {
+    String[] difficulties = new String[dimensions > 3? 2 : 3];
+    int i = 0;
+    if (difficulties.length > 2) {
+      difficulties[i++] = Solver.BEGINNER;
+    }
+    difficulties[i++] = Solver.CASUAL;
+    difficulties[i++] = Solver.CHALLENGE;
+    return (String) JOptionPane.showInputDialog(null, "Please Choose a Difficulty Setting:", "Select Difficulty:", JOptionPane.PLAIN_MESSAGE, null, difficulties, Solver.CASUAL);
+  }
+  
+  public SudokuState getCurrentState() {
+    return currentState;
+  }
+  
+  public void setGamePanel(GamePanel gamePanel) {
+    this.gamePanel = gamePanel;  
+  }
+  
+  private void updateState(SudokuState nextState) {
+    currentState = nextState;
+    setChanged();
+    notifyObservers();
+  }
+  
+  private void initGeneratePanel() {
+    generatePanel  = new JPanel();
+    radioButtons = new JRadioButton[numButtons];
+    buttonGroup = new ButtonGroup();
+
+    radioButtons[0] = new JRadioButton("3x3 - 81 Squares");
+    radioButtons[0].setActionCommand("3");
+
+    radioButtons[1] = new JRadioButton("4x4 - 256 Squares");
+    radioButtons[1].setActionCommand("4");
+    
+    for (int i = 0; i < numButtons; i++) {
+      buttonGroup.add(radioButtons[i]);
+      generatePanel.add(radioButtons[i]);
+    }
+  }
+  
+  private void generateHelper(String diff) {
     try {
-      sudoku.setSolution(solver.generate('h'));
+      sudoku.setSolution(solver.generate(diff));
       List<Cell> cells = sudoku.getSolution().getCells();
       for (int i = 0; i < cells.size(); ++i) {
         TextFieldCell textCell = gamePanel.getTextCells().get(i);
@@ -154,54 +231,5 @@ public class SudokuInteractor extends Observable {
     }
     hintSquares = new ArrayList<Integer>(sudoku.getSquares());
     updateState(SudokuState.RESETTED);
-  }
-  
-  private int warningDialog(String title) {
-    String message = "";
-    if (title == "Generate?") {
-      message = "Are you sure you would like to forfeit the current Sudoku and generate a new one?";
-    } else if (title == "Reset?") {
-      message = "Are you sure you would like to reset the current Sudoku?";
-    }
-    return JOptionPane.showConfirmDialog(sudoku.getMainUI(), message, title, JOptionPane.YES_NO_OPTION);
-  }
-  
-  private void initGeneratePanel() {
-    generatePanel  = new JPanel();
-    radioButtons = new JRadioButton[numButtons];
-    buttonGroup = new ButtonGroup();
-
-    radioButtons[0] = new JRadioButton("3x3 - 81 Squares");
-    radioButtons[0].setActionCommand("3");
-
-    radioButtons[1] = new JRadioButton("4x4 - 256 Squares");
-    radioButtons[1].setActionCommand("4");
-    
-    for (int i = 0; i < numButtons; i++) {
-      buttonGroup.add(radioButtons[i]);
-      generatePanel.add(radioButtons[i]);
-    }
-  }
-  
-  private int launchGenerateDialog() {
-    radioButtons[0].setSelected(true);
-    String[] next = {"Next"}; 
-    JOptionPane.showOptionDialog(null, generatePanel, "Select Sudoku Size:", JOptionPane.PLAIN_MESSAGE, JOptionPane.PLAIN_MESSAGE, new ImageIcon(), next, next[0]);
-    String command = buttonGroup.getSelection().getActionCommand();
-    return Integer.parseInt(command);
-  }
-  
-  public SudokuState getCurrentState() {
-    return currentState;
-  }
-  
-  public void setGamePanel(GamePanel gamePanel) {
-    this.gamePanel = gamePanel;  
-  }
-  
-  private void updateState(SudokuState nextState) {
-    currentState = nextState;
-    setChanged();
-    notifyObservers();
   }
 }

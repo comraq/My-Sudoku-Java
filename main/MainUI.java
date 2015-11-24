@@ -28,7 +28,7 @@ public class MainUI extends JFrame implements Observer {
   private JTextField statusField;
   private LayoutManager layout;
   
-  private int dimension;
+  private int dimensions;
   
   public static void main(String[] args) throws CloneNotSupportedException {
     Sudoku sudoku = new Sudoku().initialize();
@@ -52,8 +52,7 @@ public class MainUI extends JFrame implements Observer {
     buttonPanel = new ButtonPanel(sudoku);
     initStatusField();
     
-    dimension = sudoku.getDimensions();
-    setTitle(dimension + " x " + dimension + " Sudoku");
+    dimensions = sudoku.getDimensions();
     setSize(1300,700);
     setLocationRelativeTo(null);
     setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -62,7 +61,12 @@ public class MainUI extends JFrame implements Observer {
     addComponents();
     
     sudoku.getSudokuInteractor().addObserver(this);
+    setWindowTitle(dimensions);
     setName("sudoku.mainUI"); 
+  }
+  
+  public void setWindowTitle(int dimensions) {
+    setTitle(dimensions + " x " + dimensions + " Sudoku");
   }
   
   private void initStatusField() {
@@ -130,13 +134,13 @@ public class MainUI extends JFrame implements Observer {
         }
         
         if (input.contains("e")) {
-          sudoku.setSolution(solver.generate('e'));
+          sudoku.setSolution(solver.generate(Solver.BEGINNER));
         } else if (input.contains("n")) {
-          sudoku.setSolution(solver.generate('n'));  
+          sudoku.setSolution(solver.generate(Solver.CASUAL));  
         } else if (input.contains("h")) {
-          sudoku.setSolution(solver.generate('h'));
+          sudoku.setSolution(solver.generate(Solver.CHALLENGE));
         } else if (input.contains("m")) {
-          sudoku.setSolution(solver.generate('m'));
+          sudoku.setSolution(solver.generate(""));
         } else if (input.contains("1")) {
           sudoku.getSolution().setCells(solver.stringToCells(sudoku.getGrid("test")));
         } else if (input.contains("2")) {
