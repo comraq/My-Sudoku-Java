@@ -24,9 +24,9 @@ public class Sudoku {
   private String multiGrid = ". . . . . 6 . . . . 5 9 . . . . . 8 2 . . . . 8 . . . . 4 5 . . . . . . . . 3 . . . . . . . . 6 . . 3 . 5 4 . . . 3 2 5 . . 6 . . . . . . . . . . . . . . . . . .";
   private String blank;
   
-  public static void main(String[] args) throws CloneNotSupportedException{
+  /*public static void main(String[] args) throws CloneNotSupportedException{
     new Sudoku().getMainUI().start();
-  }
+  }*/
   
   public Sudoku() {
     digits = new ArrayList<Integer>();

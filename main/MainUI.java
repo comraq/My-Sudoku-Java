@@ -108,12 +108,88 @@ public class MainUI extends JFrame implements Observer {
     add(buttonPanel, con);    
   }
   
-
   @Override
   public void update(Observable arg0, Object arg1) {
     statusField.setText(sudoku.getSudokuInteractor().getCurrentState().message());
   }
+
+  public Sudoku getSudoku() {
+    return sudoku;  
+  }
   
+  public GamePanel getGamePanel() {
+    return gamePanel;
+  }
+  
+  public <T> String joinList(List<T> list, String s) {
+    if (list.isEmpty()) {
+      return s;
+    }
+    String str = "";
+    for (T item : list) {
+      str += (s + item);
+    }
+    return str.substring(1);
+  }
+
+  public void display() {
+    output(sudoku.getSolution().getCells());
+  }
+  
+  public void display(Solution solution) {
+    output(solution.getCells());
+  }
+  
+  public void output(List<Cell> cells) {
+    int dimension = sudoku.getDimensions();
+    int width = 1;
+    for (Cell cell : cells) {
+      if (cell.getValues().size() > width) {
+        width = cell.getValues().size();
+        if (width == (int)Math.pow(dimension, 2)) {
+          break;
+        }
+      }
+    }
+    width = 2*width + 2;
+    String line = "";
+    for (int i = 0; i < width*(int)Math.pow(dimension, 2); ++i) {
+      if ((i != 0) && (i %(width*dimension) == 0)) {
+        line += "+";
+      }
+      line += "-";
+    }
+    for (int r = 0; r < sudoku.getRows().size(); ++r) {
+      if ((r != 0) && (r%dimension == 0)) {
+        System.out.println(line);
+      }
+      for (int c = 0; c < sudoku.getCols().size(); ++c) {
+        if ((c != 0) && (c%dimension == 0)) {
+          System.out.print('|');
+        }
+        String valStr = joinList(cells.get(r*(int)Math.pow(dimension, 2)+ c).getValues(), " ");
+        System.out.print("(" + valStr + ")");
+        for (int i = 0; i < (width - 2 - valStr.length()); ++i) {
+          System.out.print(' ');
+        }
+      }
+      System.out.println();
+    }
+    System.out.println();
+    System.out.flush();
+    //delay();
+  }
+
+  @Deprecated
+  private void delay() {
+    try {
+      TimeUnit.MILLISECONDS.sleep(200);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+  }
+  
+  @Deprecated
   public void start() throws CloneNotSupportedException {
     BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
     System.out.println("Enter q at any time to quit...");
@@ -175,81 +251,6 @@ public class MainUI extends JFrame implements Observer {
         System.err.println("Error reading input.");
       }
     } 
-  }
-  
-  public void display() {
-    output(sudoku.getSolution().getCells());
-  }
-  
-  public void display(Solution solution) {
-    output(solution.getCells());
-  }
-  
-  public void output(List<Cell> cells) {
-    int dimension = sudoku.getDimensions();
-    int width = 1;
-    for (Cell cell : cells) {
-      if (cell.getValues().size() > width) {
-        width = cell.getValues().size();
-        if (width == (int)Math.pow(dimension, 2)) {
-          break;
-        }
-      }
-    }
-    width = 2*width + 2;
-    String line = "";
-    for (int i = 0; i < width*(int)Math.pow(dimension, 2); ++i) {
-      if ((i != 0) && (i %(width*dimension) == 0)) {
-        line += "+";
-      }
-      line += "-";
-    }
-    for (int r = 0; r < sudoku.getRows().size(); ++r) {
-      if ((r != 0) && (r%dimension == 0)) {
-        System.out.println(line);
-      }
-      for (int c = 0; c < sudoku.getCols().size(); ++c) {
-        if ((c != 0) && (c%dimension == 0)) {
-          System.out.print('|');
-        }
-        String valStr = joinList(cells.get(r*(int)Math.pow(dimension, 2)+ c).getValues(), " ");
-        System.out.print("(" + valStr + ")");
-        for (int i = 0; i < (width - 2 - valStr.length()); ++i) {
-          System.out.print(' ');
-        }
-      }
-      System.out.println();
-    }
-    System.out.println();
-    System.out.flush();
-    //delay();
-  }
-
-  private void delay() {
-    try {
-      TimeUnit.MILLISECONDS.sleep(200);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-  }
-  
-  public Sudoku getSudoku() {
-    return sudoku;  
-  }
-  
-  public GamePanel getGamePanel() {
-    return gamePanel;
-  }
-  
-  public <T> String joinList(List<T> list, String s) {
-    if (list.isEmpty()) {
-      return s;
-    }
-    String str = "";
-    for (T item : list) {
-      str += (s + item);
-    }
-    return str.substring(1);
   }
   
   @Deprecated
