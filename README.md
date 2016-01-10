@@ -4,6 +4,4 @@ In addition to simple console I/O, this sudoku includes a GUI supporting generat
 
 Download the executable .jar file and try it now!
 
-https://github.com/comraq/My-Sudoku-Java/archive/1.0.zip
-
-https://github.com/comraq/My-Sudoku-Java/archive/1.0.tar.gz
+<a href="https://github.com/comraq/My-Sudoku-Java/blob/master/MySudoku.jar?raw=true">Download Executable .jar!!</a>
